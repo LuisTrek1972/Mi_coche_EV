@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#090d16" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Control de cargas de coche eléctrico en casa y cargadores públicos en España." />
+    <title>Mi Coche EV</title>
+    <link id="dynamic-manifest-link" rel="manifest" href="" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ev: {
+                            bg: '#090d16',
+                            card: '#111827',
+                            cardAlt: '#161f33',
+                            border: '#1f2b44',
+                            green: '#10b981',
+                            blue: '#38bdf8',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05080f;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .tab-panel {
+            animation: fadeSlideUp 0.2s ease-out;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1e293b;
+            height: 8px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 999px;
+            background: transparent;
+        }
+        input[type="range"]::-moz-range-track {
+            height: 8px;
+            border-radius: 999px;
+            background: transparent;
+        }
+        input[type="range"]::-moz-range-progress {
+            height: 8px;
+            border-radius: 999px;
+            background: #10b981;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #34d399;
+            border: 3px solid #090d16;
+            margin-top: -7px;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.7);
+        }
+        @media (min-width: 640px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                padding: 1.5rem;
+                background: radial-gradient(circle at top, #131d33 0%, #05080f 65%);
+            }
+            #android-shell {
+                width: 100%;
+                max-width: 420px;
+                height: 860px;
+                max-height: 92vh;
+                border-radius: 2.5rem;
+                border: 6px solid #1e293b;
+                box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+
+    <!-- Contenedor tipo móvil Android -->
+    <div id="android-shell" class="relative flex flex-col w-full min-h-screen sm:min-h-0 bg-ev-bg text-slate-100">
+
+        <!-- Barra de estado Android -->
+        <div class="hidden sm:flex items-center justify-between px-6 pt-3 pb-1.5 text-[11px] font-medium text-slate-400 select-none bg-ev-bg z-20">
+            <span id="status-clock" class="font-mono font-semibold text-slate-300">22:40</span>
+            <div class="flex items-center gap-1.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+                <span class="font-mono text-[10px]">92%</span>
+                <i data-lucide="battery-charging" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+        </div>
+
+        <!-- Cabecera superior con foto y nombre del vehículo -->
+        <header class="sticky top-0 z-20 bg-ev-bg/95 backdrop-blur-md border-b border-ev-border/70 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+                <button type="button" onclick="triggerCarPhotoInput()" title="Cambiar foto del coche" class="relative w-11 h-11 rounded-2xl bg-slate-800/90 border border-slate-700 overflow-hidden shrink-0 group focus:outline-none">
+                    <img id="header-car-img" src="" alt="Vehículo" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-0 right-0 w-4 h-4 rounded-tl-lg bg-emerald-500 text-slate-950 flex items-center justify-center">
+                        <i data-lucide="camera" class="w-2.5 h-2.5"></i>
+                    </span>
+                </button>
+                <div class="min-w-0">
+                    <h1 id="header-app-name" class="text-sm font-bold text-white tracking-tight truncate">Mi Coche EV</h1>
+                    <p id="header-car-name" class="text-xs text-slate-400 truncate">Lynk &amp; Co 02 · Mi EV</p>
+                </div>
+            </div>
+            <button type="button" onclick="switchTab('settings')" aria-label="Ir a ajustes" class="p-2.5 rounded-xl bg-ev-card border border-ev-border text-slate-300 hover:text-white active:scale-95 transition">
+                <i data-lucide="settings" class="w-4 h-4 text-amber-400"></i>
+            </button>
+        </header>
+
+        <!-- Contenido desplazable -->
+        <main id="main-scroll" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-28 space-y-4">
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 1: RESUMEN / INICIO                -->
+            <!-- ========================================== -->
+            <section id="tab-home" class="tab-panel space-y-4">
+
+                <!-- Tarjeta principal de ahorro vs combustión -->
+                <div class="rounded-3xl p-4 bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-500/30 shadow-lg">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Ahorro vs combustión</span>
+                        <span id="stat-km-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">0 km</span>
+                    </div>
+                    <div class="flex items-baseline justify-between gap-2 mt-1">
+                        <div id="stat-savings" class="text-3xl font-extrabold font-mono text-emerald-400 tracking-tight">0,00 €</div>
+                        <div class="text-xs text-slate-300">Gasto: <span id="stat-spent" class="font-mono font-semibold text-white">0,00 €</span></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 mt-4">
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
+                            <div class="text-[11px] text-slate-400">Energía total</div>
+                            <div id="stat-kwh" class="text-base font-bold font-mono text-white mt-0.5">0,0 kWh</div>
+                        </div>
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
+                            <div class="text-[11px] text-slate-400">Coste / 100 km</div>
+                            <div id="stat-cost-100km" class="text-base font-bold font-mono text-sky-400 mt-0.5">0,00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta opcional de presupuesto mensual -->
+                <div id="home-budget-card" class="hidden rounded-2xl bg-ev-card border border-ev-border p-4 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="wallet" class="w-4 h-4 text-amber-400"></i>
+                            Presupuesto este mes
+                        </span>
+                        <span id="budget-fraction" class="font-mono text-slate-300">0,00 € / 80,00 €</span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div id="budget-bar" class="h-full rounded-full bg-emerald-500 transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                    <p id="budget-status-text" class="text-[11px] text-slate-400">Dentro del límite mensual.</p>
+                </div>
+
+                <!-- Gráfica de evolución 6 meses y reparto Casa vs Público unificados -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Gasto últimos 6 meses</h2>
+                            <span class="text-[11px] text-slate-400">Evolución</span>
+                        </div>
+                        <div id="monthly-chart" class="grid grid-cols-6 gap-2 items-end h-28 pt-3"></div>
+                    </div>
+
+                    <div class="border-t border-ev-border/80 pt-3.5 space-y-3">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Casa vs Público</h2>
+
+                        <!-- Gráfico circular tipo tarta SVG debajo del título -->
+                        <div class="flex items-center justify-center py-1">
+                            <div class="relative w-28 h-28 flex items-center justify-center">
+                                <svg viewBox="0 0 36 36" class="w-28 h-28 -rotate-90">
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#38bdf8" stroke-width="5.5"></circle>
+                                    <circle id="pie-home-slice" cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="5.5" stroke-dasharray="50 100" stroke-dashoffset="0" class="transition-all duration-500"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                                    <span id="pie-center-pct" class="text-sm font-extrabold font-mono text-white">50%</span>
+                                    <span class="text-[9px] text-slate-400 uppercase">Casa</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos agrupados debajo del gráfico -->
+                        <div class="grid grid-cols-2 gap-2.5 text-xs">
+                            <div class="rounded-xl bg-ev-cardAlt p-2.5 border border-ev-border/70">
+                                <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> En casa
+                                </div>
+                                <div id="home-summary-val" class="font-mono font-bold text-white mt-1">0,00 € · 0 kWh</div>
+                            </div>
+                            <div class="rounded-xl bg-ev-cardAlt p-2.5 border border-ev-border/70">
+                                <div class="flex items-center gap-1.5 text-sky-400 font-semibold">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Público
+                                </div>
+                                <div id="public-summary-val" class="font-mono font-bold text-white mt-1">0,00 € · 0 kWh</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimas cargas rápidas -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Últimas cargas</h2>
+                        <button type="button" onclick="switchTab('history')" class="text-xs font-semibold text-emerald-400 hover:underline">Ver todas</button>
+                    </div>
+                    <div id="recent-charges-list" class="space-y-2"></div>
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 2: REGISTRAR NUEVA CARGA           -->
+            <!-- ========================================== -->
+            <section id="tab-charge" class="tab-panel hidden space-y-4">
+
+                <!-- Selector Casa / Fuera de casa -->
+                <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-ev-card border border-ev-border">
+                    <button type="button" id="mode-btn-home" onclick="setChargeMode('home')" class="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950">
+                        <i data-lucide="home" class="w-4 h-4"></i> En casa
+                    </button>
+                    <button type="button" id="mode-btn-public" onclick="setChargeMode('public')" class="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Fuera de casa
+                    </button>
+                </div>
+
+                <!-- Formulario de carga -->
+                <form id="charge-form" onsubmit="saveNewCharge(event)" class="space-y-3.5">
+
+                    <div id="edit-mode-banner" class="hidden rounded-2xl bg-amber-500/15 border border-amber-500/40 px-3.5 py-2.5 flex items-center justify-between">
+                        <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editando carga existente
+                        </span>
+                        <button type="button" onclick="cancelEditCharge()" class="text-xs font-semibold text-slate-300 hover:text-white underline">Cancelar</button>
+                    </div>
+
+                    <!-- Fecha y kWh -->
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="input-date" class="block text-[11px] font-semibold text-slate-400 mb-1">Fecha</label>
+                                <input id="input-date" type="date" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Energía (kWh)</label>
+                                <input id="input-kwh" type="number" step="0.01" min="0.1" placeholder="32.5" required oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-sm font-mono font-bold text-white focus:border-emerald-500 focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <!-- Sliders de porcentaje de batería -->
+                        <div class="pt-1 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Batería: <strong id="soc-start-label" class="font-mono text-slate-200">20%</strong> → <strong id="soc-end-label" class="font-mono text-emerald-400">80%</strong></span>
+                                <span id="soc-gain-badge" class="text-[11px] font-mono text-emerald-400">+60%</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="block text-[10px] text-slate-500 mb-1">Inicio (%)</span>
+                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview()" class="w-full" />
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-slate-500 mb-1">Fin (%)</span>
+                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview()" class="w-full" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloque específico EN CASA -->
+                    <div id="home-fields-box" class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                <i data-lucide="plug-zap" class="w-4 h-4"></i> Tarifa doméstica
+                            </span>
+                            <span id="home-active-rate-tag" class="text-[11px] font-mono text-slate-300">0,085 €/kWh</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" data-tariff="fixed" onclick="selectHomeTariff('fixed')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-emerald-500/15 border-emerald-500 text-emerald-300">
+                                <div class="font-bold">Precio fijo</div>
+                                <div id="btn-rate-fixed" class="text-[11px] font-mono opacity-80">0,085 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="valle" onclick="selectHomeTariff('valle')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Valle (00-08h)</div>
+                                <div id="btn-rate-valle" class="text-[11px] font-mono opacity-80">0,078 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="llano" onclick="selectHomeTariff('llano')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Llano</div>
+                                <div id="btn-rate-llano" class="text-[11px] font-mono opacity-80">0,145 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="punta" onclick="selectHomeTariff('punta')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Punta</div>
+                                <div id="btn-rate-punta" class="text-[11px] font-mono opacity-80">0,235 €/kWh</div>
+                            </button>
+                        </div>
+
+                        <div>
+                            <label for="input-home-price" class="block text-[11px] font-semibold text-slate-400 mb-1">Precio aplicado (€/kWh)</label>
+                            <input id="input-home-price" type="number" step="0.001" min="0" oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <!-- Bloque específico FUERA DE CASA -->
+                    <div id="public-fields-box" class="hidden rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> Cargador público
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="detectNearbyCharger()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 text-[11px] font-semibold flex items-center gap-1 active:scale-95">
+                                    <i data-lucide="navigation" class="w-3 h-3"></i> Usar mi GPS
+                                </button>
+                                <button type="button" onclick="toggleBackupChargers()" class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11px] font-semibold active:scale-95">
+                                    ¿No puedes? Cercanos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="applyOperatorPreset('Zunder', 0.45)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Zunder · 0,45€</button>
+                            <button type="button" onclick="applyOperatorPreset('Iberdrola', 0.47)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Iberdrola · 0,47€</button>
+                            <button type="button" onclick="applyOperatorPreset('Tesla Supercharger', 0.39)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Tesla · 0,39€</button>
+                            <button type="button" onclick="applyOperatorPreset('Repsol Waylet', 0.49)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Repsol · 0,49€</button>
+                            <button type="button" onclick="applyOperatorPreset('Ionity', 0.55)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Ionity · 0,55€</button>
+                            <button type="button" onclick="applyOperatorPreset('Endesa X Way', 0.48)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Endesa X · 0,48€</button>
+                        </div>
+
+                        <div id="backup-chargers-panel" class="hidden rounded-xl bg-slate-950/80 border border-amber-500/30 p-2.5 space-y-1.5">
+                            <div class="text-[11px] font-semibold text-amber-300">Alternativas rápidas cercanas:</div>
+                            <button type="button" onclick="selectStationPreset('Zunder', 'A-6 Km 42 · Villalba', 0.45)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Zunder · A-6 Km 42</span><span class="font-mono text-sky-400">180 kW</span>
+                            </button>
+                            <button type="button" onclick="selectStationPreset('Tesla Supercharger', 'Área Servicio Madrid Sur', 0.39)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Tesla · Madrid Sur</span><span class="font-mono text-sky-400">250 kW</span>
+                            </button>
+                            <button type="button" onclick="selectStationPreset('Iberdrola', 'C.C. Plaza Norte 2', 0.47)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Iberdrola · Plaza Norte 2</span><span class="font-mono text-sky-400">150 kW</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label for="input-operator" class="block text-[11px] font-semibold text-slate-400 mb-1">Operador</label>
+                                <input id="input-operator" type="text" placeholder="Ej. Zunder" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-public-price" class="block text-[11px] font-semibold text-slate-400 mb-1">Precio (€/kWh)</label>
+                                <input id="input-public-price" type="number" step="0.01" min="0" value="0.45" oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label for="input-location" class="block text-[11px] font-semibold text-slate-400 mb-1">Lugar / Estación</label>
+                                <input id="input-location" type="text" placeholder="Ej. A-3 Km 105" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-duration" class="block text-[11px] font-semibold text-slate-400 mb-1">Duración (min)</label>
+                                <input id="input-duration" type="number" min="1" placeholder="28" oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Odómetro opcional -->
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-4">
+                        <label for="input-odometer" class="block text-[11px] font-semibold text-slate-400 mb-1">Odómetro actual (km, opcional)</label>
+                        <input id="input-odometer" type="number" min="0" placeholder="Ej. 14520" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Resumen previo del coste y aviso opcional de presupuesto -->
+                    <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] text-slate-400">Importe estimado</div>
+                            <div id="preview-total-cost" class="text-2xl font-extrabold font-mono text-emerald-400">0,00 €</div>
+                            <div id="charge-budget-hint" class="hidden text-[11px] text-amber-400 mt-0.5"></div>
+                        </div>
+                        <button type="submit" id="charge-submit-btn" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i> <span id="charge-submit-label">Guardar</span>
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 3: HISTORIAL                       -->
+            <!-- ========================================== -->
+            <section id="tab-history" class="tab-panel hidden space-y-3">
+
+                <!-- Filtros -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="setHistoryFilter('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950">Todas</button>
+                    <button type="button" onclick="setHistoryFilter('home')" id="filter-btn-home" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Casa</button>
+                    <button type="button" onclick="setHistoryFilter('public')" id="filter-btn-public" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Público</button>
+                </div>
+
+                <!-- Lista completa -->
+                <div id="full-history-list" class="space-y-2.5"></div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 4: AJUSTES                         -->
+            <!-- ========================================== -->
+            <section id="tab-settings" class="tab-panel hidden space-y-4">
+
+                <!-- Perfil de la app y vehículo -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">App y Vehículo</h2>
+
+                    <div class="flex items-center gap-3">
+                        <img id="car-preview-img" src="" alt="Coche" class="w-16 h-16 rounded-2xl object-cover bg-slate-900 border border-slate-700" />
+                        <div class="space-y-1.5">
+                            <button type="button" onclick="triggerCarPhotoInput()" class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">Cambiar foto / icono</button>
+                            <button type="button" onclick="resetCarPhoto()" class="block text-[11px] text-slate-400 hover:text-slate-200">Restaurar icono coche</button>
+                        </div>
+                        <input id="car-photo-file" type="file" accept="image/*" onchange="handleCarPhotoUpload(event)" class="hidden" />
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <div>
+                            <label for="setting-app-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre de la aplicación</label>
+                            <input id="setting-app-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="setting-car-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Modelo / Nombre del coche</label>
+                            <input id="setting-car-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-battery-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Batería útil (kWh)</label>
+                            <input id="setting-battery-kwh" type="number" step="0.5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="setting-ev-consumption" class="block text-[11px] font-semibold text-slate-400 mb-1">Consumo EV (kWh/100)</label>
+                            <input id="setting-ev-consumption" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Presupuesto opcional con tic -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <label class="flex items-center justify-between cursor-pointer select-none">
+                        <div>
+                            <div class="text-xs font-bold text-white">Activar presupuesto mensual</div>
+                            <div class="text-[11px] text-slate-400">Mostrar barra de límite en Inicio y aviso al cargar</div>
+                        </div>
+                        <input id="setting-budget-enabled" type="checkbox" onchange="saveSettingsFromUI()" class="w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
+                    </label>
+                    <div id="setting-budget-amount-wrap" class="hidden pt-1">
+                        <label for="setting-budget-limit" class="block text-[11px] font-semibold text-slate-400 mb-1">Límite mensual (€)</label>
+                        <input id="setting-budget-limit" type="number" step="5" min="5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                    </div>
+                </div>
+
+                <!-- Tarifas de casa -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Tarifas de casa (€/kWh)</h2>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-rate-fixed" class="block text-[11px] text-slate-400 mb-1">Precio fijo</label>
+                            <input id="setting-rate-fixed" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-valle" class="block text-[11px] text-slate-400 mb-1">Valle (00-08h)</label>
+                            <input id="setting-rate-valle" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-llano" class="block text-[11px] text-slate-400 mb-1">Llano</label>
+                            <input id="setting-rate-llano" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-punta" class="block text-[11px] text-slate-400 mb-1">Punta</label>
+                            <input id="setting-rate-punta" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referencia coche combustión -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Comparativa combustión</h2>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-ice-liters" class="block text-[11px] text-slate-400 mb-1">Consumo (L/100 km)</label>
+                            <input id="setting-ice-liters" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-fuel-price" class="block text-[11px] text-slate-400 mb-1">Carburante (€/L)</label>
+                            <input id="setting-fuel-price" type="number" step="0.01" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Copias de seguridad y descarga de index.html -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-2.5">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Datos y exportación</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="exportChargesCSV()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+                        </button>
+                        <button type="button" onclick="document.getElementById('csv-import-input').click()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-sky-400 flex items-center justify-center gap-1.5">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar CSV
+                        </button>
+                        <input id="csv-import-input" type="file" accept=".csv" onchange="importChargesCSV(event)" class="hidden" />
+                    </div>
+                    <button type="button" onclick="downloadSelfAsIndexHtml()" class="w-full py-2.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-semibold text-emerald-300 flex items-center justify-center gap-1.5">
+                        <i data-lucide="file-code" class="w-3.5 h-3.5"></i> Descargar archivo index.html
+                    </button>
+                    <button type="button" onclick="clearAllData()" class="w-full py-2 rounded-xl border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10">Borrar historial de ejemplo</button>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Toast flotante de aviso -->
+        <div id="toast-box" class="pointer-events-none fixed sm:absolute bottom-24 left-1/2 -translate-x-1/2 z-40 opacity-0 transition-opacity duration-200">
+            <div id="toast-msg" class="px-4 py-2 rounded-full bg-slate-900/95 border border-emerald-500/40 text-xs font-semibold text-emerald-300 shadow-xl whitespace-nowrap"></div>
+        </div>
+
+        <!-- Barra de navegación inferior estilo Android -->
+        <nav class="sticky bottom-0 z-30 bg-ev-card/95 backdrop-blur-md border-t border-ev-border px-2 py-2 grid grid-cols-4 gap-1">
+            <button type="button" id="nav-btn-home" onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-emerald-400 bg-emerald-500/10">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Inicio</span>
+            </button>
+            <button type="button" id="nav-btn-charge" onclick="switchTab('charge')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Cargar</span>
+            </button>
+            <button type="button" id="nav-btn-history" onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Historial</span>
+            </button>
+            <button type="button" id="nav-btn-settings" onclick="switchTab('settings')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Ajustes</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script>
+        const DEFAULT_CAR_PHOTO = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                <rect width="120" height="120" rx="24" fill="#0f172a"/>
+                <path d="M24 68 L34 45 C37 39 43 36 50 36 L70 36 C77 36 83 39 86 45 L96 68 L96 82 C96 85 94 87 91 87 L85 87 C82 87 80 85 80 82 L80 78 L40 78 L40 82 C40 85 38 87 35 87 L29 87 C26 87 24 85 24 82 Z" fill="#10b981"/>
+                <path d="M38 48 L43 41 L77 41 L82 48 Z" fill="#090d16"/>
+                <circle cx="38" cy="64" r="5" fill="#e2e8f0"/>
+                <circle cx="82" cy="64" r="5" fill="#e2e8f0"/>
+                <rect x="50" y="61" width="20" height="5" rx="2.5" fill="#064e3b"/>
+            </svg>
+        `);
+
+        const DEFAULT_SETTINGS = {
+            appName: 'Mi Coche EV',
+            carName: 'Lynk & Co 02 · Mi EV',
+            carPhoto: DEFAULT_CAR_PHOTO,
+            batteryKwh: 66,
+            evConsumption: 16.5,
+            budgetEnabled: false,
+            budgetLimit: 80,
+            rateFixed: 0.085,
+            rateValle: 0.078,
+            rateLlano: 0.145,
+            ratePunta: 0.235,
+            iceLiters: 6.4,
+            fuelPrice: 1.58
+        };
+
+        const DEMO_CHARGES = [
+            { id: 'c1', date: '2026-11-21', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 38.4, pricePerKwh: 0.085, totalCost: 3.26, socStart: 22, socEnd: 80, durationMin: null, odometer: 14520 },
+            { id: 'c2', date: '2026-11-16', mode: 'public', tariff: 'dc', operator: 'Zunder', location: 'A-6 Km 42', kwh: 41.0, pricePerKwh: 0.45, totalCost: 18.45, socStart: 18, socEnd: 80, durationMin: 27, odometer: 14285 },
+            { id: 'c3', date: '2026-11-10', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 44.2, pricePerKwh: 0.078, totalCost: 3.45, socStart: 15, socEnd: 82, durationMin: null, odometer: 14030 },
+            { id: 'c4', date: '2026-10-28', mode: 'public', tariff: 'dc', operator: 'Tesla Supercharger', location: 'Madrid Sur', kwh: 36.5, pricePerKwh: 0.39, totalCost: 14.24, socStart: 24, socEnd: 79, durationMin: 24, odometer: 13750 },
+            { id: 'c5', date: '2026-10-14', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 46.0, pricePerKwh: 0.085, totalCost: 3.91, socStart: 12, socEnd: 82, durationMin: null, odometer: 13470 },
+            { id: 'c6', date: '2026-09-22', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 37.4, pricePerKwh: 0.078, totalCost: 2.92, socStart: 25, socEnd: 82, durationMin: null, odometer: 13190 }
+        ];
+
+        const STORAGE_KEY_CHARGES = 'ev_tracker_es_charges_v2';
+        const STORAGE_KEY_SETTINGS = 'ev_tracker_es_settings_v2';
+
+        let appState = {
+            activeTab: 'home',
+            chargeMode: 'home',
+            selectedTariff: 'fixed',
+            historyFilter: 'all',
+            editingChargeId: null,
+            settings: { ...DEFAULT_SETTINGS },
+            charges: []
+        };
+
+        function loadStateFromStorage() {
+            try {
+                const rawSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
+                if (rawSettings) {
+                    appState.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(rawSettings) };
+                }
+                const rawCharges = localStorage.getItem(STORAGE_KEY_CHARGES);
+                if (rawCharges) {
+                    const parsed = JSON.parse(rawCharges);
+                    if (Array.isArray(parsed)) {
+                        appState.charges = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {}
+            appState.charges = DEMO_CHARGES.map(item => ({ ...item }));
+        }
+
+        function persistState() {
+            try {
+                localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(appState.settings));
+                localStorage.setItem(STORAGE_KEY_CHARGES, JSON.stringify(appState.charges));
+            } catch (e) {}
+        }
+
+        function formatEuro(val) {
+            return (Number(val) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+        }
+
+        function showToast(msg) {
+            const box = document.getElementById('toast-box');
+            const label = document.getElementById('toast-msg');
+            if (!box || !label) return;
+            label.textContent = msg;
+            box.classList.remove('opacity-0');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => box.classList.add('opacity-0'), 2400);
+        }
+
+        function switchTab(tabName) {
+            appState.activeTab = tabName;
+            ['home', 'charge', 'history', 'settings'].forEach(t => {
+                const panel = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`nav-btn-${t}`);
+                if (panel) panel.classList.toggle('hidden', t !== tabName);
+                if (btn) {
+                    if (t === tabName) {
+                        btn.classList.add('text-emerald-400', 'bg-emerald-500/10');
+                        btn.classList.remove('text-slate-400');
+                    } else {
+                        btn.classList.remove('text-emerald-400', 'bg-emerald-500/10');
+                        btn.classList.add('text-slate-400');
+                    }
+                }
+            });
+            const mainScroll = document.getElementById('main-scroll');
+            if (mainScroll) mainScroll.scrollTop = 0;
+            if (tabName === 'charge') updateChargeTotalPreview();
+        }
+
+        function setChargeMode(mode) {
+            appState.chargeMode = mode;
+            const btnHome = document.getElementById('mode-btn-home');
+            const btnPublic = document.getElementById('mode-btn-public');
+            const homeBox = document.getElementById('home-fields-box');
+            const publicBox = document.getElementById('public-fields-box');
+
+            if (mode === 'home') {
+                btnHome.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950';
+                btnPublic.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white';
+                homeBox.classList.remove('hidden');
+                publicBox.classList.add('hidden');
+                selectHomeTariff(appState.selectedTariff || 'fixed');
+            } else {
+                btnPublic.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-sky-400 text-slate-950';
+                btnHome.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white';
+                publicBox.classList.remove('hidden');
+                homeBox.classList.add('hidden');
+            }
+            updateChargeTotalPreview();
+        }
+
+        function selectHomeTariff(tariff) {
+            appState.selectedTariff = tariff;
+            const s = appState.settings;
+            const map = {
+                fixed: s.rateFixed,
+                valle: s.rateValle,
+                llano: s.rateLlano,
+                punta: s.ratePunta
+            };
+            const rate = Number(map[tariff] ?? s.rateFixed);
+            const priceInput = document.getElementById('input-home-price');
+            const rateTag = document.getElementById('home-active-rate-tag');
+            if (priceInput) priceInput.value = rate.toFixed(3);
+            if (rateTag) rateTag.textContent = `${rate.toFixed(3).replace('.', ',')} €/kWh`;
+
+            document.querySelectorAll('.tariff-btn').forEach(btn => {
+                const isSelected = btn.dataset.tariff === tariff;
+                btn.className = isSelected
+                    ? 'tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-emerald-500/15 border-emerald-500 text-emerald-300'
+                    : 'tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300';
+            });
+            updateChargeTotalPreview();
+        }
+
+        function applyOperatorPreset(operator, price) {
+            const opInput = document.getElementById('input-operator');
+            const prInput = document.getElementById('input-public-price');
+            if (opInput) opInput.value = operator;
+            if (prInput) prInput.value = price.toFixed(2);
+            updateChargeTotalPreview();
+        }
+
+        function selectStationPreset(operator, location, price) {
+            applyOperatorPreset(operator, price);
+            const locInput = document.getElementById('input-location');
+            if (locInput) locInput.value = location;
+            document.getElementById('backup-chargers-panel')?.classList.add('hidden');
+            showToast(`Seleccionado: ${operator}`);
+        }
+
+        function toggleBackupChargers() {
+            document.getElementById('backup-chargers-panel')?.classList.toggle('hidden');
+        }
+
+        function detectNearbyCharger() {
+            if (!navigator.geolocation) {
+                selectStationPreset('Zunder', 'Estación cercana GPS', 0.45);
+                return;
+            }
+            showToast('Buscando cargador cercano...');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(3);
+                    const lon = pos.coords.longitude.toFixed(3);
+                    selectStationPreset('Zunder', `Punto GPS (${lat}, ${lon})`, 0.45);
+                },
+                () => {
+                    selectStationPreset('Zunder', 'Área de servicio cercana', 0.45);
+                },
+                { timeout: 4000 }
+            );
+        }
+
+        function updateBatteryPreview() {
+            const startEl = document.getElementById('input-soc-start');
+            const endEl = document.getElementById('input-soc-end');
+            if (!startEl || !endEl) return;
+            let start = Number(startEl.value);
+            let end = Number(endEl.value);
+            if (end <= start) {
+                end = Math.min(100, start + 1);
+                endEl.value = end;
+            }
+            const minStart = Number(startEl.min) || 0;
+            const maxStart = Number(startEl.max) || 99;
+            const startPct = Math.max(0, Math.min(100, ((start - minStart) / (maxStart - minStart)) * 100));
+            startEl.style.backgroundImage = `linear-gradient(to right, #10b981 0%, #10b981 ${startPct}%, #1e293b ${startPct}%, #1e293b 100%)`;
+
+            const minEnd = Number(endEl.min) || 1;
+            const maxEnd = Number(endEl.max) || 100;
+            const endPct = Math.max(0, Math.min(100, ((end - minEnd) / (maxEnd - minEnd)) * 100));
+            endEl.style.backgroundImage = `linear-gradient(to right, #10b981 0%, #10b981 ${endPct}%, #1e293b ${endPct}%, #1e293b 100%)`;
+
+            document.getElementById('soc-start-label').textContent = `${start}%`;
+            document.getElementById('soc-end-label').textContent = `${end}%`;
+            document.getElementById('soc-gain-badge').textContent = `+${end - start}%`;
+        }
+
+        function updateChargeTotalPreview() {
+            const kwh = Number(document.getElementById('input-kwh')?.value) || 0;
+            const unitPrice = appState.chargeMode === 'home'
+                ? (Number(document.getElementById('input-home-price')?.value) || 0)
+                : (Number(document.getElementById('input-public-price')?.value) || 0);
+            const total = kwh * unitPrice;
+
+            const previewEl = document.getElementById('preview-total-cost');
+            if (previewEl) previewEl.textContent = formatEuro(total);
+
+            const budgetHint = document.getElementById('charge-budget-hint');
+            if (budgetHint) {
+                if (appState.settings.budgetEnabled) {
+                    const currentMonth = getCurrentMonthSpent();
+                    const projected = currentMonth + total;
+                    const limit = Number(appState.settings.budgetLimit) || 80;
+                    budgetHint.classList.remove('hidden');
+                    budgetHint.textContent = `Mes tras carga: ${formatEuro(projected)} / ${formatEuro(limit)}`;
+                    budgetHint.className = projected > limit
+                        ? 'text-[11px] text-rose-400 mt-0.5 font-semibold'
+                        : 'text-[11px] text-amber-400 mt-0.5';
+                } else {
+                    budgetHint.classList.add('hidden');
+                }
+            }
+        }
+
+        function saveNewCharge(event) {
+            event.preventDefault();
+            const date = document.getElementById('input-date').value || new Date().toISOString().slice(0, 10);
+            const kwh = Number(document.getElementById('input-kwh').value);
+            if (!kwh || kwh <= 0) {
+                showToast('Introduce los kWh cargados');
+                return;
+            }
+            const isHome = appState.chargeMode === 'home';
+            const pricePerKwh = isHome
+                ? (Number(document.getElementById('input-home-price').value) || 0)
+                : (Number(document.getElementById('input-public-price').value) || 0);
+            const totalCost = Number((kwh * pricePerKwh).toFixed(2));
+            const socStart = Number(document.getElementById('input-soc-start').value);
+            const socEnd = Number(document.getElementById('input-soc-end').value);
+            const durationRaw = !isHome ? Number(document.getElementById('input-duration').value) : null;
+            const odometerRaw = Number(document.getElementById('input-odometer').value) || null;
+
+            const chargePayload = {
+                id: appState.editingChargeId || ('chg_' + Date.now()),
+                date,
+                mode: appState.chargeMode,
+                tariff: isHome ? appState.selectedTariff : 'dc',
+                operator: isHome ? 'Casa' : (document.getElementById('input-operator').value.trim() || 'Cargador público'),
+                location: isHome ? 'Garaje' : (document.getElementById('input-location').value.trim() || 'En ruta'),
+                kwh,
+                pricePerKwh,
+                totalCost,
+                socStart,
+                socEnd,
+                durationMin: durationRaw > 0 ? durationRaw : null,
+                odometer: odometerRaw
+            };
+
+            const isEditing = Boolean(appState.editingChargeId);
+            if (isEditing) {
+                const idx = appState.charges.findIndex(c => c.id === appState.editingChargeId);
+                if (idx !== -1) appState.charges[idx] = chargePayload;
+                else appState.charges.unshift(chargePayload);
+            } else {
+                appState.charges.unshift(chargePayload);
+            }
+
+            appState.charges.sort((a, b) => b.date.localeCompare(a.date));
+            persistState();
+
+            resetChargeFormState();
+            refreshAllViews();
+            showToast(isEditing ? 'Carga actualizada' : 'Carga guardada correctamente');
+            switchTab(isEditing ? 'history' : 'home');
+        }
+
+        function resetChargeFormState() {
+            appState.editingChargeId = null;
+            document.getElementById('edit-mode-banner')?.classList.add('hidden');
+            const submitLabel = document.getElementById('charge-submit-label');
+            if (submitLabel) submitLabel.textContent = 'Guardar';
+            document.getElementById('input-date').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('input-kwh').value = '';
+            document.getElementById('input-soc-start').value = 20;
+            document.getElementById('input-soc-end').value = 80;
+            document.getElementById('input-operator').value = '';
+            document.getElementById('input-location').value = '';
+            document.getElementById('input-duration').value = '';
+            document.getElementById('input-odometer').value = '';
+            updateBatteryPreview();
+            updateChargeTotalPreview();
+        }
+
+        function cancelEditCharge() {
+            resetChargeFormState();
+            showToast('Edición cancelada');
+            switchTab('history');
+        }
+
+        function editCharge(id) {
+            const item = appState.charges.find(c => c.id === id);
+            if (!item) return;
+
+            appState.editingChargeId = item.id;
+            document.getElementById('edit-mode-banner')?.classList.remove('hidden');
+            const submitLabel = document.getElementById('charge-submit-label');
+            if (submitLabel) submitLabel.textContent = 'Actualizar';
+
+            switchTab('charge');
+            setChargeMode(item.mode === 'public' ? 'public' : 'home');
+
+            document.getElementById('input-date').value = item.date;
+            document.getElementById('input-kwh').value = item.kwh;
+            document.getElementById('input-soc-start').value = item.socStart ?? 20;
+            document.getElementById('input-soc-end').value = item.socEnd ?? 80;
+            updateBatteryPreview();
+
+            if (item.mode === 'home') {
+                selectHomeTariff(item.tariff || 'fixed');
+                document.getElementById('input-home-price').value = Number(item.pricePerKwh).toFixed(3);
+            } else {
+                document.getElementById('input-operator').value = item.operator || '';
+                document.getElementById('input-location').value = item.location || '';
+                document.getElementById('input-public-price').value = Number(item.pricePerKwh).toFixed(2);
+                document.getElementById('input-duration').value = item.durationMin || '';
+            }
+            document.getElementById('input-odometer').value = item.odometer || '';
+            updateChargeTotalPreview();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function deleteCharge(id) {
+            appState.charges = appState.charges.filter(c => c.id !== id);
+            persistState();
+            refreshAllViews();
+            showToast('Carga eliminada');
+        }
+
+        function getCurrentMonthSpent() {
+            const latestDate = appState.charges[0]?.date || new Date().toISOString().slice(0, 10);
+            const ym = latestDate.slice(0, 7);
+            return appState.charges
+                .filter(c => c.date.startsWith(ym))
+                .reduce((acc, c) => acc + (Number(c.totalCost) || 0), 0);
+        }
+
+        function setHistoryFilter(filter) {
+            appState.historyFilter = filter;
+            ['all', 'home', 'public'].forEach(f => {
+                const btn = document.getElementById(`filter-btn-${f}`);
+                if (!btn) return;
+                btn.className = f === filter
+                    ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950'
+                    : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300';
+            });
+            renderHistoryList();
+        }
+
+        function renderChargeCard(item, allowDelete) {
+            const isHome = item.mode === 'home';
+            const badgeColor = isHome
+                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                : 'bg-sky-500/15 text-sky-400 border-sky-500/30';
+            const tariffNames = { fixed: 'Precio fijo', valle: 'Valle', llano: 'Llano', punta: 'Punta', dc: 'Rápida' };
+            const subLabel = isHome
+                ? `${tariffNames[item.tariff] || 'Casa'} · ${item.socStart}%→${item.socEnd}%`
+                : `${item.location} · ${item.socStart}%→${item.socEnd}%${item.durationMin ? ` · ${item.durationMin}m` : ''}`;
+
+            return `
+                <div class="rounded-2xl bg-ev-cardAlt/90 border border-ev-border p-3 flex items-center justify-between gap-2.5">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${badgeColor}">${isHome ? 'CASA' : item.operator}</span>
+                            <span class="text-[11px] font-mono text-slate-400">${item.date}</span>
+                        </div>
+                        <div class="text-xs text-slate-300 mt-1 truncate">${subLabel}</div>
+                    </div>
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <div class="text-right">
+                            <div class="text-sm font-bold font-mono text-white">${formatEuro(item.totalCost)}</div>
+                            <div class="text-[11px] font-mono text-slate-400">${Number(item.kwh).toFixed(1)} kWh</div>
+                        </div>
+                        ${allowDelete ? `
+                            <div class="flex items-center gap-0.5">
+                                <button type="button" onclick="editCharge('${item.id}')" aria-label="Editar carga" class="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-amber-500/10">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                                <button type="button" onclick="deleteCharge('${item.id}')" aria-label="Eliminar carga" class="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('full-history-list');
+            if (!container) return;
+            const filtered = appState.charges.filter(c => {
+                if (appState.historyFilter === 'all') return true;
+                return c.mode === appState.historyFilter;
+            });
+            if (!filtered.length) {
+                container.innerHTML = `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas registradas en este filtro.</div>`;
+            } else {
+                container.innerHTML = filtered.map(c => renderChargeCard(c, true)).join('');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderMonthlyChart() {
+            const chartEl = document.getElementById('monthly-chart');
+            if (!chartEl) return;
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const grouped = {};
+            appState.charges.forEach(c => {
+                const ym = c.date.slice(0, 7);
+                if (!grouped[ym]) grouped[ym] = { home: 0, public: 0 };
+                if (c.mode === 'home') grouped[ym].home += Number(c.totalCost) || 0;
+                else grouped[ym].public += Number(c.totalCost) || 0;
+            });
+            const keys = Object.keys(grouped).sort().slice(-6);
+            if (!keys.length) {
+                chartEl.innerHTML = `<div class="col-span-6 text-center text-xs text-slate-500">Sin datos aún</div>`;
+                return;
+            }
+            const maxTotal = Math.max(...keys.map(k => grouped[k].home + grouped[k].public), 1);
+            chartEl.innerHTML = keys.map(k => {
+                const hPct = Math.round((grouped[k].home / maxTotal) * 100);
+                const pPct = Math.round((grouped[k].public / maxTotal) * 100);
+                const mIndex = Number(k.split('-')[1]) - 1;
+                const total = grouped[k].home + grouped[k].public;
+                return `
+                    <div class="flex flex-col items-center gap-1 h-full justify-end">
+                        <span class="text-[10px] font-mono text-slate-400">${Math.round(total)}€</span>
+                        <div class="w-full max-w-[26px] h-16 bg-slate-900 rounded-lg overflow-hidden flex flex-col justify-end p-0.5">
+                            <div class="w-full bg-sky-400 rounded-t-sm" style="height:${pPct}%"></div>
+                            <div class="w-full bg-emerald-500 rounded-b-sm" style="height:${hPct}%"></div>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-400">${monthNames[mIndex] || k}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshAllViews() {
+            const s = appState.settings;
+            const totalKwh = appState.charges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const totalSpent = appState.charges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+            const evCons = Number(s.evConsumption) || 16.5;
+            const estKm = evCons > 0 ? Math.round((totalKwh / evCons) * 100) : 0;
+            const iceCost = (estKm / 100) * (Number(s.iceLiters) || 6.4) * (Number(s.fuelPrice) || 1.58);
+            const savings = Math.max(0, iceCost - totalSpent);
+            const cost100 = estKm > 0 ? (totalSpent / estKm) * 100 : 0;
+
+            document.getElementById('stat-km-badge').textContent = `${estKm.toLocaleString('es-ES')} km`;
+            document.getElementById('stat-savings').textContent = formatEuro(savings);
+            document.getElementById('stat-spent').textContent = formatEuro(totalSpent);
+            document.getElementById('stat-kwh').textContent = `${totalKwh.toFixed(1).replace('.', ',')} kWh`;
+            document.getElementById('stat-cost-100km').textContent = formatEuro(cost100);
+
+            const budgetCard = document.getElementById('home-budget-card');
+            if (budgetCard) {
+                if (s.budgetEnabled) {
+                    budgetCard.classList.remove('hidden');
+                    const monthSpent = getCurrentMonthSpent();
+                    const limit = Number(s.budgetLimit) || 80;
+                    const pct = Math.min(100, Math.round((monthSpent / limit) * 100));
+                    document.getElementById('budget-fraction').textContent = `${formatEuro(monthSpent)} / ${formatEuro(limit)}`;
+                    const bar = document.getElementById('budget-bar');
+                    bar.style.width = `${pct}%`;
+                    bar.className = pct >= 100
+                        ? 'h-full rounded-full bg-rose-500 transition-all duration-300'
+                        : pct >= 80
+                            ? 'h-full rounded-full bg-amber-400 transition-all duration-300'
+                            : 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+                    document.getElementById('budget-status-text').textContent = pct >= 100
+                        ? 'Has superado el presupuesto mensual configurado.'
+                        : `Llevas el ${pct}% del límite de este mes.`;
+                } else {
+                    budgetCard.classList.add('hidden');
+                }
+            }
+
+            const homeCharges = appState.charges.filter(c => c.mode === 'home');
+            const publicCharges = appState.charges.filter(c => c.mode !== 'home');
+            const homeKwh = homeCharges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const publicKwh = publicCharges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const homeCost = homeCharges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+            const publicCost = publicCharges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+
+            const homePct = totalKwh > 0 ? Math.round((homeKwh / totalKwh) * 100) : 50;
+            const publicPct = totalKwh > 0 ? 100 - homePct : 50;
+            const pieSlice = document.getElementById('pie-home-slice');
+            if (pieSlice) pieSlice.setAttribute('stroke-dasharray', `${homePct} 100`);
+            const pieCenter = document.getElementById('pie-center-pct');
+            if (pieCenter) pieCenter.textContent = `${homePct}%`;
+            document.getElementById('home-summary-val').textContent = `${formatEuro(homeCost)} · ${homeKwh.toFixed(0)} kWh`;
+            document.getElementById('public-summary-val').textContent = `${formatEuro(publicCost)} · ${publicKwh.toFixed(0)} kWh`;
+
+            const recentEl = document.getElementById('recent-charges-list');
+            if (recentEl) {
+                const top3 = appState.charges.slice(0, 3);
+                recentEl.innerHTML = top3.length
+                    ? top3.map(c => renderChargeCard(c, false)).join('')
+                    : `<p class="text-xs text-slate-400">Aún no hay cargas.</p>`;
+            }
+
+            renderMonthlyChart();
+            renderHistoryList();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function syncSettingsToUI() {
+            const s = appState.settings;
+            document.title = s.appName || 'Mi Coche EV';
+            document.getElementById('header-app-name').textContent = s.appName || 'Mi Coche EV';
+            document.getElementById('header-car-name').textContent = s.carName || 'Mi EV';
+            document.getElementById('header-car-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
+            document.getElementById('car-preview-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
+
+            document.getElementById('setting-app-name').value = s.appName;
+            document.getElementById('setting-car-name').value = s.carName;
+            document.getElementById('setting-battery-kwh').value = s.batteryKwh;
+            document.getElementById('setting-ev-consumption').value = s.evConsumption;
+            document.getElementById('setting-budget-enabled').checked = Boolean(s.budgetEnabled);
+            document.getElementById('setting-budget-limit').value = s.budgetLimit;
+            document.getElementById('setting-budget-amount-wrap').classList.toggle('hidden', !s.budgetEnabled);
+
+            document.getElementById('setting-rate-fixed').value = s.rateFixed;
+            document.getElementById('setting-rate-valle').value = s.rateValle;
+            document.getElementById('setting-rate-llano').value = s.rateLlano;
+            document.getElementById('setting-rate-punta').value = s.ratePunta;
+
+            document.getElementById('btn-rate-fixed').textContent = `${Number(s.rateFixed).toFixed(3).replace('.', ',')} €/kWh`;
+            document.getElementById('btn-rate-valle').textContent = `${Number(s.rateValle).toFixed(3).replace('.', ',')} €/kWh`;
+            document.getElementById('btn-rate-llano').textContent = `${Number(s.rateLlano).toFixed(3).replace('.', ',')} €/kWh`;
+            document.getElementById('btn-rate-punta').textContent = `${Number(s.ratePunta).toFixed(3).replace('.', ',')} €/kWh`;
+
+            document.getElementById('setting-ice-liters').value = s.iceLiters;
+            document.getElementById('setting-fuel-price').value = s.fuelPrice;
+        }
+
+        function saveSettingsFromUI() {
+            const s = appState.settings;
+            s.appName = document.getElementById('setting-app-name').value.trim() || 'Mi Coche EV';
+            s.carName = document.getElementById('setting-car-name').value.trim() || 'Mi EV';
+            s.batteryKwh = Number(document.getElementById('setting-battery-kwh').value) || 66;
+            s.evConsumption = Number(document.getElementById('setting-ev-consumption').value) || 16.5;
+            s.budgetEnabled = document.getElementById('setting-budget-enabled').checked;
+            s.budgetLimit = Number(document.getElementById('setting-budget-limit').value) || 80;
+
+            s.rateFixed = Number(document.getElementById('setting-rate-fixed').value) || 0.085;
+            s.rateValle = Number(document.getElementById('setting-rate-valle').value) || 0.078;
+            s.rateLlano = Number(document.getElementById('setting-rate-llano').value) || 0.145;
+            s.ratePunta = Number(document.getElementById('setting-rate-punta').value) || 0.235;
+
+            s.iceLiters = Number(document.getElementById('setting-ice-liters').value) || 6.4;
+            s.fuelPrice = Number(document.getElementById('setting-fuel-price').value) || 1.58;
+
+            persistState();
+            syncSettingsToUI();
+            selectHomeTariff(appState.selectedTariff);
+            refreshAllViews();
+            setupDynamicManifest();
+        }
+
+        function triggerCarPhotoInput() {
+            document.getElementById('car-photo-file')?.click();
+        }
+
+        function handleCarPhotoUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                appState.settings.carPhoto = e.target.result;
+                persistState();
+                syncSettingsToUI();
+                setupDynamicManifest();
+                showToast('Imagen actualizada');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetCarPhoto() {
+            appState.settings.carPhoto = DEFAULT_CAR_PHOTO;
+            persistState();
+            syncSettingsToUI();
+            setupDynamicManifest();
+            showToast('Icono restaurado');
+        }
+
+        function exportChargesCSV() {
+            const headers = ['fecha', 'modo', 'tarifa', 'operador', 'lugar', 'kwh', 'precio_kwh', 'total_eur', 'soc_inicio', 'soc_fin', 'duracion_min', 'odometro'];
+            const rows = appState.charges.map(c => [
+                c.date, c.mode, c.tariff, `"${c.operator}"`, `"${c.location}"`,
+                c.kwh, c.pricePerKwh, c.totalCost, c.socStart, c.socEnd, c.durationMin || '', c.odometer || ''
+            ].join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `cargas_ev_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            showToast('CSV exportado');
+        }
+
+        function importChargesCSV(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const lines = String(e.target.result || '').split(/\r?\n/).slice(1).filter(Boolean);
+                const imported = lines.map((line, idx) => {
+                    const cols = line.split(',');
+                    return {
+                        id: 'imp_' + Date.now() + '_' + idx,
+                        date: cols[0] || new Date().toISOString().slice(0, 10),
+                        mode: cols[1] === 'public' ? 'public' : 'home',
+                        tariff: cols[2] || 'fixed',
+                        operator: (cols[3] || 'Casa').replace(/"/g, ''),
+                        location: (cols[4] || '').replace(/"/g, ''),
+                        kwh: Number(cols[5]) || 0,
+                        pricePerKwh: Number(cols[6]) || 0,
+                        totalCost: Number(cols[7]) || 0,
+                        socStart: Number(cols[8]) || 20,
+                        socEnd: Number(cols[9]) || 80,
+                        durationMin: Number(cols[10]) || null,
+                        odometer: Number(cols[11]) || null
+                    };
+                }).filter(item => item.kwh > 0);
+                if (imported.length) {
+                    appState.charges = [...imported, ...appState.charges];
+                    persistState();
+                    refreshAllViews();
+                    showToast(`${imported.length} cargas importadas`);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            appState.charges = [];
+            persistState();
+            refreshAllViews();
+            showToast('Historial vaciado');
+        }
+
+        async function setupDynamicManifest() {
+            const manifestLink = document.getElementById('dynamic-manifest-link');
+            if (!manifestLink) return;
+            const appTitle = appState.settings.appName || 'Mi Coche EV';
+            const carTitle = appState.settings.carName || 'Mi EV';
+            const icon192 = 'https://placehold.co/192x192/090d16/10b981.png?text=EV';
+            const icon512 = 'https://placehold.co/512x512/090d16/10b981.png?text=EV';
+
+            const manifestData = {
+                name: `${appTitle} (${carTitle})`,
+                short_name: appTitle.slice(0, 12),
+                description: 'Control de cargas EV en casa y cargadores públicos.',
+                start_url: window.location.href,
+                scope: window.location.origin + '/',
+                display: 'standalone',
+                orientation: 'portrait',
+                background_color: '#090d16',
+                theme_color: '#10b981',
+                icons: [
+                    {
+                        src: icon192,
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: icon512,
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'any maskable'
+                    }
+                ]
+            };
+            const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            if (manifestLink.dataset.blobUrl) {
+                URL.revokeObjectURL(manifestLink.dataset.blobUrl);
+            }
+            const url = URL.createObjectURL(blob);
+            manifestLink.dataset.blobUrl = url;
+            manifestLink.href = url;
+        }
+
+        function downloadSelfAsIndexHtml() {
+            try {
+                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'index.html';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+                showToast('Archivo index.html descargado');
+            } catch (e) {
+                showToast('No se pudo descargar');
+            }
+        }
+
+        function updateClock() {
+            const el = document.getElementById('status-clock');
+            if (!el) return;
+            const now = new Date();
+            el.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function registerAppServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            const swCode = `
+                self.addEventListener('install', event => { self.skipWaiting(); });
+                self.addEventListener('activate', event => { event.waitUntil(self.clients.claim()); });
+                self.addEventListener('fetch', event => {
+                    if (event.request.method !== 'GET') return;
+                    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+                });
+            `;
+            try {
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl, { scope: './' }).catch(() => {});
+            } catch (e) {}
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            loadStateFromStorage();
+            const dateInput = document.getElementById('input-date');
+            if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+            syncSettingsToUI();
+            setChargeMode('home');
+            updateBatteryPreview();
+            refreshAllViews();
+            updateClock();
+            setInterval(updateClock, 30000);
+            await setupDynamicManifest();
+            registerAppServiceWorker();
+        });
+    </script>
+</body>
+</html>
