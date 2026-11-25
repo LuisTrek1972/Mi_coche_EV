@@ -9,7 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="Control de cargas de coche eléctrico en casa y cargadores públicos en España." />
     <title>Mi Coche EV</title>
-    <link id="dynamic-manifest-link" rel="manifest" href="" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="https://placehold.co/192x192/090d16/10b981.png?text=EV" />
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/090d16/10b981.png?text=EV" />
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1577,7 +1579,6 @@
             selectHomeTariff(appState.selectedTariff);
             updateBatteryPreview(false);
             refreshAllViews();
-            setupDynamicManifest();
         }
 
         function triggerCarPhotoInput() {
@@ -1602,8 +1603,7 @@
                     appState.settings.carPhoto = canvas.toDataURL('image/jpeg', 0.85);
                     persistState();
                     syncSettingsToUI();
-                    setupDynamicManifest();
-                    showToast('Foto e icono actualizados');
+                    showToast('Foto del coche actualizada');
                 };
                 img.src = e.target.result;
             };
@@ -1614,7 +1614,6 @@
             appState.settings.carPhoto = DEFAULT_CAR_PHOTO;
             persistState();
             syncSettingsToUI();
-            setupDynamicManifest();
             showToast('Icono restaurado');
         }
 
@@ -1650,7 +1649,6 @@
                     persistState();
                     syncSettingsToUI();
                     refreshAllViews();
-                    setupDynamicManifest();
                     showToast('Copia completa restaurada');
                 } catch (err) {
                     showToast('Archivo JSON no válido');
@@ -1715,85 +1713,6 @@
             showToast('Historial vaciado');
         }
 
-        function renderPngIconDataUrl(imgSrc, size) {
-            return new Promise((resolve) => {
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = size;
-                    canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) {
-                        resolve(DEFAULT_CAR_PHOTO);
-                        return;
-                    }
-                    ctx.fillStyle = '#090d16';
-                    ctx.fillRect(0, 0, size, size);
-
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = function () {
-                        try {
-                            const pad = Math.round(size * 0.1);
-                            ctx.drawImage(img, pad, pad, size - pad * 2, size - pad * 2);
-                            resolve(canvas.toDataURL('image/png'));
-                        } catch (err) {
-                            resolve(DEFAULT_CAR_PHOTO);
-                        }
-                    };
-                    img.onerror = function () {
-                        resolve(DEFAULT_CAR_PHOTO);
-                    };
-                    img.src = imgSrc || DEFAULT_CAR_PHOTO;
-                } catch (e) {
-                    resolve(DEFAULT_CAR_PHOTO);
-                }
-            });
-        }
-
-        async function setupDynamicManifest() {
-            const manifestLink = document.getElementById('dynamic-manifest-link');
-            if (!manifestLink) return;
-            const appTitle = appState.settings.appName || 'Mi Coche EV';
-            const carTitle = appState.settings.carName || 'Mi EV';
-            const rawIcon = appState.settings.carPhoto || DEFAULT_CAR_PHOTO;
-            const icon192 = await renderPngIconDataUrl(rawIcon, 192);
-            const icon512 = await renderPngIconDataUrl(rawIcon, 512);
-
-            const manifestData = {
-                name: `${appTitle} (${carTitle})`,
-                short_name: appTitle.slice(0, 12),
-                description: 'Control de cargas EV en casa y cargadores públicos.',
-                start_url: './',
-                scope: './',
-                display: 'standalone',
-                display_override: ['standalone', 'fullscreen'],
-                orientation: 'portrait',
-                background_color: '#090d16',
-                theme_color: '#10b981',
-                icons: [
-                    {
-                        src: icon192,
-                        sizes: '192x192',
-                        type: 'image/png',
-                        purpose: 'any'
-                    },
-                    {
-                        src: icon512,
-                        sizes: '512x512',
-                        type: 'image/png',
-                        purpose: 'any maskable'
-                    }
-                ]
-            };
-            const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
-            if (manifestLink.dataset.blobUrl) {
-                URL.revokeObjectURL(manifestLink.dataset.blobUrl);
-            }
-            const url = URL.createObjectURL(blob);
-            manifestLink.dataset.blobUrl = url;
-            manifestLink.href = url;
-        }
-
         function downloadSelfAsIndexHtml() {
             try {
                 const clone = document.documentElement.cloneNode(true);
@@ -1802,11 +1721,6 @@
                     const el = clone.querySelector('#' + id);
                     if (el) el.innerHTML = '';
                 });
-                const manifestEl = clone.querySelector('#dynamic-manifest-link');
-                if (manifestEl) {
-                    manifestEl.setAttribute('href', '');
-                    manifestEl.removeAttribute('data-blob-url');
-                }
                 const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
                 const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
@@ -1829,22 +1743,10 @@
 
         function registerAppServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
-            const swCode = `
-                self.addEventListener('install', event => { self.skipWaiting(); });
-                self.addEventListener('activate', event => { event.waitUntil(self.clients.claim()); });
-                self.addEventListener('fetch', event => {
-                    if (event.request.method !== 'GET') return;
-                    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
-                });
-            `;
-            try {
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl, { scope: './' }).catch(() => {});
-            } catch (e) {}
+            navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch(() => {});
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             loadStateFromStorage();
             const dateInput = document.getElementById('input-date');
             if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
@@ -1854,7 +1756,6 @@
             refreshAllViews();
             updateClock();
             setInterval(updateClock, 30000);
-            await setupDynamicManifest();
             registerAppServiceWorker();
         });
     </script>
