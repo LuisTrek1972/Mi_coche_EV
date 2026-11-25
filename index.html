@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#090d16" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="Control de cargas de coche eléctrico en casa y cargadores públicos en España." />
@@ -1722,7 +1723,7 @@
                     canvas.height = size;
                     const ctx = canvas.getContext('2d');
                     if (!ctx) {
-                        resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                        resolve(DEFAULT_CAR_PHOTO);
                         return;
                     }
                     ctx.fillStyle = '#090d16';
@@ -1732,18 +1733,19 @@
                     img.crossOrigin = 'anonymous';
                     img.onload = function () {
                         try {
-                            ctx.drawImage(img, 0, 0, size, size);
+                            const pad = Math.round(size * 0.1);
+                            ctx.drawImage(img, pad, pad, size - pad * 2, size - pad * 2);
                             resolve(canvas.toDataURL('image/png'));
                         } catch (err) {
-                            resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                            resolve(DEFAULT_CAR_PHOTO);
                         }
                     };
                     img.onerror = function () {
-                        resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                        resolve(DEFAULT_CAR_PHOTO);
                     };
                     img.src = imgSrc || DEFAULT_CAR_PHOTO;
                 } catch (e) {
-                    resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                    resolve(DEFAULT_CAR_PHOTO);
                 }
             });
         }
@@ -1761,9 +1763,10 @@
                 name: `${appTitle} (${carTitle})`,
                 short_name: appTitle.slice(0, 12),
                 description: 'Control de cargas EV en casa y cargadores públicos.',
-                start_url: window.location.href,
-                scope: window.location.origin + '/',
+                start_url: './',
+                scope: './',
                 display: 'standalone',
+                display_override: ['standalone', 'fullscreen'],
                 orientation: 'portrait',
                 background_color: '#090d16',
                 theme_color: '#10b981',
