@@ -190,14 +190,18 @@
                         <div class="text-xs text-slate-300">Gasto: <span id="stat-spent" class="font-mono font-semibold text-white">0,00 €</span></div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5 mt-4">
-                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
-                            <div class="text-[11px] text-slate-400">Energía total</div>
-                            <div id="stat-kwh" class="text-base font-bold font-mono text-white mt-0.5">0,0 kWh</div>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-2.5">
+                            <div class="text-[10px] text-slate-400">Energía total</div>
+                            <div id="stat-kwh" class="text-sm font-bold font-mono text-white mt-0.5">0,0 kWh</div>
                         </div>
-                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
-                            <div class="text-[11px] text-slate-400">Coste / 100 km</div>
-                            <div id="stat-cost-100km" class="text-base font-bold font-mono text-sky-400 mt-0.5">0,00 €</div>
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-2.5">
+                            <div class="text-[10px] text-slate-400">Coste / 100 km</div>
+                            <div id="stat-cost-100km" class="text-sm font-bold font-mono text-sky-400 mt-0.5">0,00 €</div>
+                        </div>
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-2.5">
+                            <div id="stat-consumption-label" class="text-[10px] text-slate-400">Consumo EV</div>
+                            <div id="stat-real-consumption" class="text-sm font-bold font-mono text-emerald-300 mt-0.5">16,5 kWh</div>
                         </div>
                     </div>
                 </div>
@@ -306,25 +310,28 @@
                                 <input id="input-date" type="date" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                             </div>
                             <div>
-                                <label for="input-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Energía (kWh)</label>
-                                <input id="input-kwh" type="number" step="0.01" min="0.1" placeholder="32.5" required oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-sm font-mono font-bold text-white focus:border-emerald-500 focus:outline-none" />
+                                <div class="flex items-center justify-between mb-1">
+                                    <label for="input-kwh" class="block text-[11px] font-semibold text-slate-400">Energía (kWh)</label>
+                                    <button type="button" id="btn-apply-est-kwh" onclick="applyEstimatedKwh()" class="text-[10px] font-mono text-emerald-400 hover:underline">Est: 39,6</button>
+                                </div>
+                                <input id="input-kwh" type="number" step="0.01" min="0.1" placeholder="39.6" required oninput="handleManualKwhInput()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-sm font-mono font-bold text-white focus:border-emerald-500 focus:outline-none" />
                             </div>
                         </div>
 
-                        <!-- Sliders de porcentaje de batería -->
+                        <!-- Sliders de porcentaje de batería con cálculo automático -->
                         <div class="pt-1 space-y-2">
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-slate-400">Batería: <strong id="soc-start-label" class="font-mono text-slate-200">20%</strong> → <strong id="soc-end-label" class="font-mono text-emerald-400">80%</strong></span>
-                                <span id="soc-gain-badge" class="text-[11px] font-mono text-emerald-400">+60%</span>
+                                <span id="soc-gain-badge" class="text-[11px] font-mono text-emerald-400">+60% (≈ 39,6 kWh)</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <span class="block text-[10px] text-slate-500 mb-1">Inicio (%)</span>
-                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview()" class="w-full" />
+                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview(true)" class="w-full" />
                                 </div>
                                 <div>
                                     <span class="block text-[10px] text-slate-500 mb-1">Fin (%)</span>
-                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview()" class="w-full" />
+                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview(true)" class="w-full" />
                                 </div>
                             </div>
                         </div>
@@ -372,10 +379,10 @@
                             </span>
                             <div class="flex items-center gap-1.5">
                                 <button type="button" onclick="detectNearbyCharger()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 text-[11px] font-semibold flex items-center gap-1 active:scale-95">
-                                    <i data-lucide="navigation" class="w-3 h-3"></i> Usar mi GPS
+                                    <i data-lucide="navigation" class="w-3 h-3"></i> GPS
                                 </button>
-                                <button type="button" onclick="toggleBackupChargers()" class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11px] font-semibold active:scale-95">
-                                    ¿No puedes? Cercanos
+                                <button type="button" onclick="openNearbyChargersMap()" class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11px] font-semibold flex items-center gap-1 active:scale-95">
+                                    <i data-lucide="external-link" class="w-3 h-3"></i> Ver mapa
                                 </button>
                             </div>
                         </div>
@@ -389,17 +396,10 @@
                             <button type="button" onclick="applyOperatorPreset('Endesa X Way', 0.48)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Endesa X · 0,48€</button>
                         </div>
 
-                        <div id="backup-chargers-panel" class="hidden rounded-xl bg-slate-950/80 border border-amber-500/30 p-2.5 space-y-1.5">
-                            <div class="text-[11px] font-semibold text-amber-300">Alternativas rápidas cercanas:</div>
-                            <button type="button" onclick="selectStationPreset('Zunder', 'A-6 Km 42 · Villalba', 0.45)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
-                                <span>Zunder · A-6 Km 42</span><span class="font-mono text-sky-400">180 kW</span>
-                            </button>
-                            <button type="button" onclick="selectStationPreset('Tesla Supercharger', 'Área Servicio Madrid Sur', 0.39)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
-                                <span>Tesla · Madrid Sur</span><span class="font-mono text-sky-400">250 kW</span>
-                            </button>
-                            <button type="button" onclick="selectStationPreset('Iberdrola', 'C.C. Plaza Norte 2', 0.47)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
-                                <span>Iberdrola · Plaza Norte 2</span><span class="font-mono text-sky-400">150 kW</span>
-                            </button>
+                        <!-- Tus estaciones frecuentes guardadas automáticamente -->
+                        <div id="frequent-stations-box" class="hidden rounded-xl bg-slate-950/75 border border-slate-800 p-2.5 space-y-1.5">
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tus cargadores habituales</div>
+                            <div id="frequent-stations-list" class="flex flex-wrap gap-1.5"></div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2.5">
@@ -427,7 +427,10 @@
 
                     <!-- Odómetro opcional -->
                     <div class="rounded-2xl bg-ev-card border border-ev-border p-4">
-                        <label for="input-odometer" class="block text-[11px] font-semibold text-slate-400 mb-1">Odómetro actual (km, opcional)</label>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="input-odometer" class="block text-[11px] font-semibold text-slate-400">Odómetro actual (km, opcional)</label>
+                            <span id="last-odometer-hint" class="text-[10px] font-mono text-slate-500"></span>
+                        </div>
                         <input id="input-odometer" type="number" min="0" placeholder="Ej. 14520" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                     </div>
 
@@ -451,11 +454,28 @@
             <!-- ========================================== -->
             <section id="tab-history" class="tab-panel hidden space-y-3">
 
-                <!-- Filtros -->
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="setHistoryFilter('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950">Todas</button>
-                    <button type="button" onclick="setHistoryFilter('home')" id="filter-btn-home" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Casa</button>
-                    <button type="button" onclick="setHistoryFilter('public')" id="filter-btn-public" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Público</button>
+                <!-- Filtros por tipo y mes -->
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="setHistoryFilter('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950">Todas</button>
+                        <button type="button" onclick="setHistoryFilter('home')" id="filter-btn-home" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Casa</button>
+                        <button type="button" onclick="setHistoryFilter('public')" id="filter-btn-public" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Público</button>
+                    </div>
+                    <select id="history-month-filter" onchange="setHistoryMonthFilter(this.value)" aria-label="Filtrar por mes" class="rounded-xl bg-ev-card border border-ev-border px-2.5 py-1.5 text-xs font-mono text-slate-200 focus:border-emerald-500 focus:outline-none">
+                        <option value="all">Todos los meses</option>
+                    </select>
+                </div>
+
+                <!-- Buscador rápido -->
+                <div class="relative">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input id="history-search-input" type="text" placeholder="Buscar operador, lugar o fecha..." oninput="renderHistoryList()" class="w-full rounded-xl bg-ev-card border border-ev-border pl-8 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none" />
+                </div>
+
+                <!-- Resumen dinámico del filtro activo -->
+                <div id="history-summary-bar" class="rounded-2xl bg-ev-card border border-ev-border px-3.5 py-2.5 flex items-center justify-between text-xs">
+                    <span id="history-summary-count" class="text-slate-400">0 cargas</span>
+                    <span id="history-summary-totals" class="font-mono font-bold text-emerald-400">0,0 kWh · 0,00 €</span>
                 </div>
 
                 <!-- Lista completa -->
@@ -561,6 +581,15 @@
                 <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-2.5">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Datos y exportación</h2>
                     <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="exportFullBackupJSON()" class="py-2.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-semibold text-emerald-300 flex items-center justify-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Copia total JSON
+                        </button>
+                        <button type="button" onclick="document.getElementById('json-import-input').click()" class="py-2.5 px-3 rounded-xl bg-sky-500/15 border border-sky-500/40 text-xs font-semibold text-sky-300 flex items-center justify-center gap-1.5">
+                            <i data-lucide="folder-up" class="w-3.5 h-3.5"></i> Restaurar JSON
+                        </button>
+                        <input id="json-import-input" type="file" accept=".json,application/json" onchange="importFullBackupJSON(event)" class="hidden" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
                         <button type="button" onclick="exportChargesCSV()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1.5">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
                         </button>
@@ -569,8 +598,8 @@
                         </button>
                         <input id="csv-import-input" type="file" accept=".csv" onchange="importChargesCSV(event)" class="hidden" />
                     </div>
-                    <button type="button" onclick="downloadSelfAsIndexHtml()" class="w-full py-2.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-semibold text-emerald-300 flex items-center justify-center gap-1.5">
-                        <i data-lucide="file-code" class="w-3.5 h-3.5"></i> Descargar archivo index.html
+                    <button type="button" onclick="downloadSelfAsIndexHtml()" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5">
+                        <i data-lucide="file-code" class="w-3.5 h-3.5 text-emerald-400"></i> Descargar archivo index.html
                     </button>
                     <button type="button" onclick="clearAllData()" class="w-full py-2 rounded-xl border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10">Borrar historial de ejemplo</button>
                 </div>
@@ -606,7 +635,7 @@
 
     </div>
 
-    <script>
+    <script id="app-main-script">
         const DEFAULT_CAR_PHOTO = "data:image/svg+xml;utf8," + encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
                 <rect width="120" height="120" rx="24" fill="#0f172a"/>
@@ -651,7 +680,9 @@
             chargeMode: 'home',
             selectedTariff: 'fixed',
             historyFilter: 'all',
+            historyMonth: 'all',
             editingChargeId: null,
+            kwhManuallyEdited: false,
             settings: { ...DEFAULT_SETTINGS },
             charges: []
         };
@@ -713,7 +744,11 @@
             });
             const mainScroll = document.getElementById('main-scroll');
             if (mainScroll) mainScroll.scrollTop = 0;
-            if (tabName === 'charge') updateChargeTotalPreview();
+            if (tabName === 'charge') {
+                updateOdometerHint();
+                renderFrequentStations();
+                updateChargeTotalPreview();
+            }
         }
 
         function setChargeMode(mode) {
@@ -734,6 +769,7 @@
                 btnHome.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white';
                 publicBox.classList.remove('hidden');
                 homeBox.classList.add('hidden');
+                renderFrequentStations();
             }
             updateChargeTotalPreview();
         }
@@ -766,7 +802,7 @@
             const opInput = document.getElementById('input-operator');
             const prInput = document.getElementById('input-public-price');
             if (opInput) opInput.value = operator;
-            if (prInput) prInput.value = price.toFixed(2);
+            if (prInput) prInput.value = Number(price).toFixed(2);
             updateChargeTotalPreview();
         }
 
@@ -774,34 +810,90 @@
             applyOperatorPreset(operator, price);
             const locInput = document.getElementById('input-location');
             if (locInput) locInput.value = location;
-            document.getElementById('backup-chargers-panel')?.classList.add('hidden');
             showToast(`Seleccionado: ${operator}`);
         }
 
-        function toggleBackupChargers() {
-            document.getElementById('backup-chargers-panel')?.classList.toggle('hidden');
+        function renderFrequentStations() {
+            const box = document.getElementById('frequent-stations-box');
+            const list = document.getElementById('frequent-stations-list');
+            if (!box || !list) return;
+
+            const seen = new Map();
+            appState.charges.filter(c => c.mode === 'public' && c.operator).forEach(c => {
+                const key = `${c.operator}|${c.location || ''}`;
+                if (!seen.has(key)) {
+                    seen.set(key, {
+                        operator: c.operator,
+                        location: c.location || 'En ruta',
+                        price: Number(c.pricePerKwh) || 0.45
+                    });
+                }
+            });
+
+            const stations = Array.from(seen.values()).slice(0, 4);
+            if (!stations.length) {
+                box.classList.add('hidden');
+                return;
+            }
+            box.classList.remove('hidden');
+            list.innerHTML = stations.map(st => `
+                <button type="button" onclick="selectStationPreset('${st.operator.replace(/'/g, "\\'")}', '${st.location.replace(/'/g, "\\'")}', ${st.price})" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-200 hover:border-sky-400">
+                    ${st.operator} · ${st.location}
+                </button>
+            `).join('');
+        }
+
+        function openNearbyChargersMap() {
+            const url = 'https://www.google.com/maps/search/cargador+coche+electrico/';
+            window.open(url, '_blank', 'noopener');
         }
 
         function detectNearbyCharger() {
             if (!navigator.geolocation) {
-                selectStationPreset('Zunder', 'Estación cercana GPS', 0.45);
+                openNearbyChargersMap();
                 return;
             }
-            showToast('Buscando cargador cercano...');
+            showToast('Obteniendo ubicación GPS...');
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    const lat = pos.coords.latitude.toFixed(3);
-                    const lon = pos.coords.longitude.toFixed(3);
-                    selectStationPreset('Zunder', `Punto GPS (${lat}, ${lon})`, 0.45);
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lon = pos.coords.longitude.toFixed(4);
+                    const locInput = document.getElementById('input-location');
+                    if (locInput) locInput.value = `GPS (${lat}, ${lon})`;
+                    showToast('Ubicación GPS añadida');
                 },
                 () => {
-                    selectStationPreset('Zunder', 'Área de servicio cercana', 0.45);
+                    openNearbyChargersMap();
                 },
-                { timeout: 4000 }
+                { timeout: 4500 }
             );
         }
 
-        function updateBatteryPreview() {
+        function calculateEstimatedKwhFromSoc(start, end) {
+            const cap = Number(appState.settings.batteryKwh) || 66;
+            const delta = Math.max(0, end - start);
+            return Number(((delta / 100) * cap).toFixed(1));
+        }
+
+        function handleManualKwhInput() {
+            appState.kwhManuallyEdited = true;
+            updateChargeTotalPreview();
+        }
+
+        function applyEstimatedKwh() {
+            const start = Number(document.getElementById('input-soc-start')?.value) || 20;
+            const end = Number(document.getElementById('input-soc-end')?.value) || 80;
+            const est = calculateEstimatedKwhFromSoc(start, end);
+            const kwhInput = document.getElementById('input-kwh');
+            if (kwhInput) {
+                kwhInput.value = est.toFixed(1);
+                appState.kwhManuallyEdited = false;
+                updateChargeTotalPreview();
+                showToast(`Estimado: ${est.toFixed(1).replace('.', ',')} kWh`);
+            }
+        }
+
+        function updateBatteryPreview(autoFillKwh = false) {
             const startEl = document.getElementById('input-soc-start');
             const endEl = document.getElementById('input-soc-end');
             if (!startEl || !endEl) return;
@@ -821,9 +913,35 @@
             const endPct = Math.max(0, Math.min(100, ((end - minEnd) / (maxEnd - minEnd)) * 100));
             endEl.style.backgroundImage = `linear-gradient(to right, #10b981 0%, #10b981 ${endPct}%, #1e293b ${endPct}%, #1e293b 100%)`;
 
+            const estKwh = calculateEstimatedKwhFromSoc(start, end);
+            const estLabel = estKwh.toFixed(1).replace('.', ',');
+
             document.getElementById('soc-start-label').textContent = `${start}%`;
             document.getElementById('soc-end-label').textContent = `${end}%`;
-            document.getElementById('soc-gain-badge').textContent = `+${end - start}%`;
+            document.getElementById('soc-gain-badge').textContent = `+${end - start}% (≈ ${estLabel} kWh)`;
+
+            const estBtn = document.getElementById('btn-apply-est-kwh');
+            if (estBtn) estBtn.textContent = `Est: ${estLabel}`;
+
+            const kwhInput = document.getElementById('input-kwh');
+            if (autoFillKwh && !appState.kwhManuallyEdited && !appState.editingChargeId && kwhInput) {
+                kwhInput.value = estKwh.toFixed(1);
+                updateChargeTotalPreview();
+            }
+        }
+
+        function updateOdometerHint() {
+            const hintEl = document.getElementById('last-odometer-hint');
+            if (!hintEl) return;
+            const odoValues = appState.charges
+                .map(c => Number(c.odometer))
+                .filter(v => Number.isFinite(v) && v > 0);
+            if (odoValues.length) {
+                const maxOdo = Math.max(...odoValues);
+                hintEl.textContent = `Último: ${maxOdo.toLocaleString('es-ES')} km`;
+            } else {
+                hintEl.textContent = '';
+            }
         }
 
         function updateChargeTotalPreview() {
@@ -907,18 +1025,20 @@
 
         function resetChargeFormState() {
             appState.editingChargeId = null;
+            appState.kwhManuallyEdited = false;
             document.getElementById('edit-mode-banner')?.classList.add('hidden');
             const submitLabel = document.getElementById('charge-submit-label');
             if (submitLabel) submitLabel.textContent = 'Guardar';
             document.getElementById('input-date').value = new Date().toISOString().slice(0, 10);
-            document.getElementById('input-kwh').value = '';
             document.getElementById('input-soc-start').value = 20;
             document.getElementById('input-soc-end').value = 80;
+            document.getElementById('input-kwh').value = '';
             document.getElementById('input-operator').value = '';
             document.getElementById('input-location').value = '';
             document.getElementById('input-duration').value = '';
             document.getElementById('input-odometer').value = '';
-            updateBatteryPreview();
+            updateBatteryPreview(false);
+            updateOdometerHint();
             updateChargeTotalPreview();
         }
 
@@ -933,6 +1053,7 @@
             if (!item) return;
 
             appState.editingChargeId = item.id;
+            appState.kwhManuallyEdited = true;
             document.getElementById('edit-mode-banner')?.classList.remove('hidden');
             const submitLabel = document.getElementById('charge-submit-label');
             if (submitLabel) submitLabel.textContent = 'Actualizar';
@@ -944,7 +1065,7 @@
             document.getElementById('input-kwh').value = item.kwh;
             document.getElementById('input-soc-start').value = item.socStart ?? 20;
             document.getElementById('input-soc-end').value = item.socEnd ?? 80;
-            updateBatteryPreview();
+            updateBatteryPreview(false);
 
             if (item.mode === 'home') {
                 selectHomeTariff(item.tariff || 'fixed');
@@ -987,15 +1108,37 @@
             renderHistoryList();
         }
 
+        function setHistoryMonthFilter(ym) {
+            appState.historyMonth = ym || 'all';
+            renderHistoryList();
+        }
+
+        function syncHistoryMonthOptions() {
+            const selectEl = document.getElementById('history-month-filter');
+            if (!selectEl) return;
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const uniqueMonths = Array.from(new Set(appState.charges.map(c => c.date.slice(0, 7)))).sort().reverse();
+            const current = appState.historyMonth;
+            selectEl.innerHTML = `<option value="all">Todos los meses</option>` + uniqueMonths.map(ym => {
+                const [y, m] = ym.split('-');
+                const label = `${monthNames[Number(m) - 1] || m} ${y}`;
+                return `<option value="${ym}" ${current === ym ? 'selected' : ''}>${label}</option>`;
+            }).join('');
+            if (current !== 'all' && !uniqueMonths.includes(current)) {
+                appState.historyMonth = 'all';
+            }
+        }
+
         function renderChargeCard(item, allowDelete) {
             const isHome = item.mode === 'home';
             const badgeColor = isHome
                 ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
                 : 'bg-sky-500/15 text-sky-400 border-sky-500/30';
             const tariffNames = { fixed: 'Precio fijo', valle: 'Valle', llano: 'Llano', punta: 'Punta', dc: 'Rápida' };
+            const odoText = item.odometer ? ` · ${Number(item.odometer).toLocaleString('es-ES')} km` : '';
             const subLabel = isHome
-                ? `${tariffNames[item.tariff] || 'Casa'} · ${item.socStart}%→${item.socEnd}%`
-                : `${item.location} · ${item.socStart}%→${item.socEnd}%${item.durationMin ? ` · ${item.durationMin}m` : ''}`;
+                ? `${tariffNames[item.tariff] || 'Casa'} · ${item.socStart}%→${item.socEnd}%${odoText}`
+                : `${item.location} · ${item.socStart}%→${item.socEnd}%${item.durationMin ? ` · ${item.durationMin}m` : ''}${odoText}`;
 
             return `
                 <div class="rounded-2xl bg-ev-cardAlt/90 border border-ev-border p-3 flex items-center justify-between gap-2.5">
@@ -1006,7 +1149,7 @@
                         </div>
                         <div class="text-xs text-slate-300 mt-1 truncate">${subLabel}</div>
                     </div>
-                    <div class="flex items-center gap-2.5 shrink-0">
+                    <div class="flex items-center gap-2 shrink-0">
                         <div class="text-right">
                             <div class="text-sm font-bold font-mono text-white">${formatEuro(item.totalCost)}</div>
                             <div class="text-[11px] font-mono text-slate-400">${Number(item.kwh).toFixed(1)} kWh</div>
@@ -1029,12 +1172,29 @@
         function renderHistoryList() {
             const container = document.getElementById('full-history-list');
             if (!container) return;
+            const query = (document.getElementById('history-search-input')?.value || '').trim().toLowerCase();
+
             const filtered = appState.charges.filter(c => {
-                if (appState.historyFilter === 'all') return true;
-                return c.mode === appState.historyFilter;
+                if (appState.historyFilter !== 'all' && c.mode !== appState.historyFilter) return false;
+                if (appState.historyMonth !== 'all' && !c.date.startsWith(appState.historyMonth)) return false;
+                if (query) {
+                    const haystack = `${c.date} ${c.operator} ${c.location} ${c.tariff}`.toLowerCase();
+                    if (!haystack.includes(query)) return false;
+                }
+                return true;
             });
+
+            const countEl = document.getElementById('history-summary-count');
+            const totalsEl = document.getElementById('history-summary-totals');
+            if (countEl && totalsEl) {
+                const sumKwh = filtered.reduce((acc, c) => acc + (Number(c.kwh) || 0), 0);
+                const sumEur = filtered.reduce((acc, c) => acc + (Number(c.totalCost) || 0), 0);
+                countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'carga' : 'cargas'}`;
+                totalsEl.textContent = `${sumKwh.toFixed(1).replace('.', ',')} kWh · ${formatEuro(sumEur)}`;
+            }
+
             if (!filtered.length) {
-                container.innerHTML = `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas registradas en este filtro.</div>`;
+                container.innerHTML = `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas registradas con este filtro.</div>`;
             } else {
                 container.innerHTML = filtered.map(c => renderChargeCard(c, true)).join('');
             }
@@ -1076,12 +1236,47 @@
             }).join('');
         }
 
+        function computeRealConsumptionStats() {
+            const withOdo = appState.charges
+                .filter(c => Number.isFinite(Number(c.odometer)) && Number(c.odometer) > 0)
+                .slice()
+                .sort((a, b) => Number(a.odometer) - Number(b.odometer));
+
+            if (withOdo.length < 2) {
+                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            }
+
+            const firstOdo = Number(withOdo[0].odometer);
+            const lastOdo = Number(withOdo[withOdo.length - 1].odometer);
+            const distance = lastOdo - firstOdo;
+            if (distance < 30) {
+                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            }
+
+            // Sumamos los kWh cargados después del primer registro de odómetro hasta el último
+            let kwhBetween = 0;
+            for (let i = 1; i < withOdo.length; i++) {
+                kwhBetween += Number(withOdo[i].kwh) || 0;
+            }
+            if (kwhBetween <= 0) {
+                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            }
+
+            const realCons = (kwhBetween / distance) * 100;
+            if (realCons < 6 || realCons > 45) {
+                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            }
+            return { hasReal: true, consumption: realCons };
+        }
+
         function refreshAllViews() {
             const s = appState.settings;
             const totalKwh = appState.charges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
             const totalSpent = appState.charges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
-            const evCons = Number(s.evConsumption) || 16.5;
-            const estKm = evCons > 0 ? Math.round((totalKwh / evCons) * 100) : 0;
+
+            const consInfo = computeRealConsumptionStats();
+            const activeCons = consInfo.consumption;
+            const estKm = activeCons > 0 ? Math.round((totalKwh / activeCons) * 100) : 0;
             const iceCost = (estKm / 100) * (Number(s.iceLiters) || 6.4) * (Number(s.fuelPrice) || 1.58);
             const savings = Math.max(0, iceCost - totalSpent);
             const cost100 = estKm > 0 ? (totalSpent / estKm) * 100 : 0;
@@ -1091,6 +1286,13 @@
             document.getElementById('stat-spent').textContent = formatEuro(totalSpent);
             document.getElementById('stat-kwh').textContent = `${totalKwh.toFixed(1).replace('.', ',')} kWh`;
             document.getElementById('stat-cost-100km').textContent = formatEuro(cost100);
+
+            const consLabelEl = document.getElementById('stat-consumption-label');
+            const consValEl = document.getElementById('stat-real-consumption');
+            if (consLabelEl && consValEl) {
+                consLabelEl.textContent = consInfo.hasReal ? 'Consumo real' : 'Consumo ref.';
+                consValEl.textContent = `${activeCons.toFixed(1).replace('.', ',')} kWh`;
+            }
 
             const budgetCard = document.getElementById('home-budget-card');
             if (budgetCard) {
@@ -1123,7 +1325,6 @@
             const publicCost = publicCharges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
 
             const homePct = totalKwh > 0 ? Math.round((homeKwh / totalKwh) * 100) : 50;
-            const publicPct = totalKwh > 0 ? 100 - homePct : 50;
             const pieSlice = document.getElementById('pie-home-slice');
             if (pieSlice) pieSlice.setAttribute('stroke-dasharray', `${homePct} 100`);
             const pieCenter = document.getElementById('pie-center-pct');
@@ -1139,8 +1340,10 @@
                     : `<p class="text-xs text-slate-400">Aún no hay cargas.</p>`;
             }
 
+            syncHistoryMonthOptions();
             renderMonthlyChart();
             renderHistoryList();
+            updateOdometerHint();
             if (window.lucide) lucide.createIcons();
         }
 
@@ -1194,6 +1397,7 @@
             persistState();
             syncSettingsToUI();
             selectHomeTariff(appState.selectedTariff);
+            updateBatteryPreview(false);
             refreshAllViews();
             setupDynamicManifest();
         }
@@ -1207,11 +1411,24 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function (e) {
-                appState.settings.carPhoto = e.target.result;
-                persistState();
-                syncSettingsToUI();
-                setupDynamicManifest();
-                showToast('Imagen actualizada');
+                // Redimensionamos la foto a 512x512 para ahorrar espacio y usarla como icono real de app
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 512;
+                    canvas.height = 512;
+                    const ctx = canvas.getContext('2d');
+                    const minSide = Math.min(img.width, img.height);
+                    const sx = (img.width - minSide) / 2;
+                    const sy = (img.height - minSide) / 2;
+                    ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, 512, 512);
+                    appState.settings.carPhoto = canvas.toDataURL('image/jpeg', 0.85);
+                    persistState();
+                    syncSettingsToUI();
+                    setupDynamicManifest();
+                    showToast('Foto e icono actualizados');
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -1222,6 +1439,47 @@
             syncSettingsToUI();
             setupDynamicManifest();
             showToast('Icono restaurado');
+        }
+
+        function exportFullBackupJSON() {
+            const payload = {
+                version: 2,
+                exportedAt: new Date().toISOString(),
+                settings: appState.settings,
+                charges: appState.charges
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `backup_mi_coche_ev_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            showToast('Copia completa JSON descargada');
+        }
+
+        function importFullBackupJSON(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const parsed = JSON.parse(String(e.target.result || '{}'));
+                    if (parsed.settings && typeof parsed.settings === 'object') {
+                        appState.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+                    }
+                    if (Array.isArray(parsed.charges)) {
+                        appState.charges = parsed.charges;
+                    }
+                    persistState();
+                    syncSettingsToUI();
+                    refreshAllViews();
+                    setupDynamicManifest();
+                    showToast('Copia completa restaurada');
+                } catch (err) {
+                    showToast('Archivo JSON no válido');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function exportChargesCSV() {
@@ -1280,13 +1538,48 @@
             showToast('Historial vaciado');
         }
 
+        function renderPngIconDataUrl(imgSrc, size) {
+            return new Promise((resolve) => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                        return;
+                    }
+                    ctx.fillStyle = '#090d16';
+                    ctx.fillRect(0, 0, size, size);
+
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function () {
+                        try {
+                            ctx.drawImage(img, 0, 0, size, size);
+                            resolve(canvas.toDataURL('image/png'));
+                        } catch (err) {
+                            resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                        }
+                    };
+                    img.onerror = function () {
+                        resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                    };
+                    img.src = imgSrc || DEFAULT_CAR_PHOTO;
+                } catch (e) {
+                    resolve(imgSrc || DEFAULT_CAR_PHOTO);
+                }
+            });
+        }
+
         async function setupDynamicManifest() {
             const manifestLink = document.getElementById('dynamic-manifest-link');
             if (!manifestLink) return;
             const appTitle = appState.settings.appName || 'Mi Coche EV';
             const carTitle = appState.settings.carName || 'Mi EV';
-            const icon192 = 'https://placehold.co/192x192/090d16/10b981.png?text=EV';
-            const icon512 = 'https://placehold.co/512x512/090d16/10b981.png?text=EV';
+            const rawIcon = appState.settings.carPhoto || DEFAULT_CAR_PHOTO;
+            const icon192 = await renderPngIconDataUrl(rawIcon, 192);
+            const icon512 = await renderPngIconDataUrl(rawIcon, 512);
 
             const manifestData = {
                 name: `${appTitle} (${carTitle})`,
@@ -1324,7 +1617,18 @@
 
         function downloadSelfAsIndexHtml() {
             try {
-                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const clone = document.documentElement.cloneNode(true);
+                const cleanIds = ['monthly-chart', 'recent-charges-list', 'full-history-list', 'frequent-stations-list'];
+                cleanIds.forEach(id => {
+                    const el = clone.querySelector('#' + id);
+                    if (el) el.innerHTML = '';
+                });
+                const manifestEl = clone.querySelector('#dynamic-manifest-link');
+                if (manifestEl) {
+                    manifestEl.setAttribute('href', '');
+                    manifestEl.removeAttribute('data-blob-url');
+                }
+                const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
                 const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
@@ -1367,7 +1671,7 @@
             if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
             syncSettingsToUI();
             setChargeMode('home');
-            updateBatteryPreview();
+            updateBatteryPreview(false);
             refreshAllViews();
             updateClock();
             setInterval(updateClock, 30000);
