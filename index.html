@@ -200,7 +200,7 @@
                             <div id="stat-cost-100km" class="text-sm font-bold font-mono text-sky-400 mt-0.5">0,00 €</div>
                         </div>
                         <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-2.5">
-                            <div id="stat-consumption-label" class="text-[10px] text-slate-400">Consumo EV</div>
+                            <div id="stat-consumption-label" class="text-[10px] text-slate-400">Consumo ref.</div>
                             <div id="stat-real-consumption" class="text-sm font-bold font-mono text-emerald-300 mt-0.5">16,5 kWh</div>
                         </div>
                     </div>
@@ -484,7 +484,64 @@
             </section>
 
             <!-- ========================================== -->
-            <!-- PESTAÑA 4: AJUSTES                         -->
+            <!-- PESTAÑA 4: GRÁFICOS Y MÁS DATOS            -->
+            <!-- ========================================== -->
+            <section id="tab-stats" class="tab-panel hidden space-y-4">
+
+                <!-- Gráfico de km entre cargas con línea de media -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Km entre cargas</h2>
+                            <p class="text-[11px] text-slate-400">Calculado según el odómetro registrado</p>
+                        </div>
+                        <span id="km-interval-avg-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">Media: -- km</span>
+                    </div>
+
+                    <div id="km-interval-chart-wrap" class="relative pt-5 pb-1">
+                        <div id="km-interval-avg-line" class="hidden absolute left-0 right-0 border-t-2 border-dashed border-amber-400/90 pointer-events-none z-10 flex justify-end pr-1" style="bottom: 36px;">
+                            <span id="km-interval-avg-tag" class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 text-[9px] font-mono font-bold -mt-2.5">Media</span>
+                        </div>
+                        <div id="km-interval-chart" class="grid grid-cols-6 gap-2 items-end h-32"></div>
+                    </div>
+                </div>
+
+                <!-- Métricas útiles: Precio medio €/kWh y Frecuencia de carga -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
+                        <div class="text-[11px] text-slate-400">Precio medio real</div>
+                        <div id="stat-avg-price-total" class="text-lg font-extrabold font-mono text-emerald-400">0,000 €</div>
+                        <div class="text-[10px] font-mono text-slate-400">
+                            Casa: <span id="stat-avg-price-home" class="text-emerald-300">0,000€</span> · Pub: <span id="stat-avg-price-public" class="text-sky-300">0,000€</span>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
+                        <div class="text-[11px] text-slate-400">Frecuencia de carga</div>
+                        <div id="stat-days-between" class="text-lg font-extrabold font-mono text-sky-400">-- días</div>
+                        <div id="stat-total-charges-count" class="text-[10px] font-mono text-slate-400">0 cargas registradas</div>
+                    </div>
+                </div>
+
+                <!-- Métricas de batería: SOC medio y Autonomía estimada al 100% -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
+                        <div class="text-[11px] text-slate-400">Batería media (SOC)</div>
+                        <div id="stat-avg-soc" class="text-base font-extrabold font-mono text-white">20% → 80%</div>
+                        <div id="stat-avg-soc-gain" class="text-[10px] font-mono text-emerald-400">Ganancia media: +60%</div>
+                    </div>
+
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
+                        <div class="text-[11px] text-slate-400">Autonomía al 100%</div>
+                        <div id="stat-full-range" class="text-base font-extrabold font-mono text-amber-300">0 km</div>
+                        <div id="stat-battery-sub" class="text-[10px] font-mono text-slate-400">Batería: 66 kWh</div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 5: AJUSTES                         -->
             <!-- ========================================== -->
             <section id="tab-settings" class="tab-panel hidden space-y-4">
 
@@ -518,7 +575,7 @@
                             <input id="setting-battery-kwh" type="number" step="0.5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                         <div>
-                            <label for="setting-ev-consumption" class="block text-[11px] font-semibold text-slate-400 mb-1">Consumo EV (kWh/100)</label>
+                            <label for="setting-ev-consumption" class="block text-[11px] font-semibold text-slate-400 mb-1">Consumo ref. (kWh/100)</label>
                             <input id="setting-ev-consumption" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                     </div>
@@ -614,7 +671,7 @@
         </div>
 
         <!-- Barra de navegación inferior estilo Android -->
-        <nav class="sticky bottom-0 z-30 bg-ev-card/95 backdrop-blur-md border-t border-ev-border px-2 py-2 grid grid-cols-4 gap-1">
+        <nav class="sticky bottom-0 z-30 bg-ev-card/95 backdrop-blur-md border-t border-ev-border px-1.5 py-2 grid grid-cols-5 gap-0.5">
             <button type="button" id="nav-btn-home" onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-emerald-400 bg-emerald-500/10">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 <span class="text-[10px] font-bold mt-0.5">Inicio</span>
@@ -626,6 +683,10 @@
             <button type="button" id="nav-btn-history" onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
                 <i data-lucide="history" class="w-5 h-5"></i>
                 <span class="text-[10px] font-bold mt-0.5">Historial</span>
+            </button>
+            <button type="button" id="nav-btn-stats" onclick="switchTab('stats')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Gráficos</span>
             </button>
             <button type="button" id="nav-btn-settings" onclick="switchTab('settings')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
                 <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
@@ -728,7 +789,7 @@
 
         function switchTab(tabName) {
             appState.activeTab = tabName;
-            ['home', 'charge', 'history', 'settings'].forEach(t => {
+            ['home', 'charge', 'history', 'stats', 'settings'].forEach(t => {
                 const panel = document.getElementById(`tab-${t}`);
                 const btn = document.getElementById(`nav-btn-${t}`);
                 if (panel) panel.classList.toggle('hidden', t !== tabName);
@@ -748,6 +809,8 @@
                 updateOdometerHint();
                 renderFrequentStations();
                 updateChargeTotalPreview();
+            } else if (tabName === 'stats') {
+                renderExtraStatsTab();
             }
         }
 
@@ -942,6 +1005,37 @@
             } else {
                 hintEl.textContent = '';
             }
+        }
+
+        function computeRealConsumptionStats() {
+            const fallback = Number(appState.settings.evConsumption) || 16.5;
+            const ordered = appState.charges
+                .filter(c => Number.isFinite(Number(c.odometer)) && Number(c.odometer) > 0)
+                .slice()
+                .sort((a, b) => (Number(a.odometer) - Number(b.odometer)) || a.date.localeCompare(b.date));
+
+            if (ordered.length < 2) {
+                return { hasReal: false, consumption: fallback, totalKm: 0 };
+            }
+
+            const firstOdo = Number(ordered[0].odometer);
+            const lastOdo = Number(ordered[ordered.length - 1].odometer);
+            const deltaKm = lastOdo - firstOdo;
+            if (deltaKm <= 0) {
+                return { hasReal: false, consumption: fallback, totalKm: 0 };
+            }
+
+            const kwhBetween = ordered.slice(1).reduce((acc, c) => acc + (Number(c.kwh) || 0), 0);
+            if (kwhBetween <= 0) {
+                return { hasReal: false, consumption: fallback, totalKm: deltaKm };
+            }
+
+            const realCons = (kwhBetween / deltaKm) * 100;
+            if (!Number.isFinite(realCons) || realCons < 5 || realCons > 60) {
+                return { hasReal: false, consumption: fallback, totalKm: deltaKm };
+            }
+
+            return { hasReal: true, consumption: realCons, totalKm: deltaKm };
         }
 
         function updateChargeTotalPreview() {
@@ -1149,7 +1243,7 @@
                         </div>
                         <div class="text-xs text-slate-300 mt-1 truncate">${subLabel}</div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex items-center gap-2.5 shrink-0">
                         <div class="text-right">
                             <div class="text-sm font-bold font-mono text-white">${formatEuro(item.totalCost)}</div>
                             <div class="text-[11px] font-mono text-slate-400">${Number(item.kwh).toFixed(1)} kWh</div>
@@ -1178,7 +1272,7 @@
                 if (appState.historyFilter !== 'all' && c.mode !== appState.historyFilter) return false;
                 if (appState.historyMonth !== 'all' && !c.date.startsWith(appState.historyMonth)) return false;
                 if (query) {
-                    const haystack = `${c.date} ${c.operator} ${c.location} ${c.tariff}`.toLowerCase();
+                    const haystack = `${c.operator || ''} ${c.location || ''} ${c.date || ''} ${c.tariff || ''}`.toLowerCase();
                     if (!haystack.includes(query)) return false;
                 }
                 return true;
@@ -1186,15 +1280,13 @@
 
             const countEl = document.getElementById('history-summary-count');
             const totalsEl = document.getElementById('history-summary-totals');
-            if (countEl && totalsEl) {
-                const sumKwh = filtered.reduce((acc, c) => acc + (Number(c.kwh) || 0), 0);
-                const sumEur = filtered.reduce((acc, c) => acc + (Number(c.totalCost) || 0), 0);
-                countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'carga' : 'cargas'}`;
-                totalsEl.textContent = `${sumKwh.toFixed(1).replace('.', ',')} kWh · ${formatEuro(sumEur)}`;
-            }
+            const sumKwh = filtered.reduce((acc, c) => acc + (Number(c.kwh) || 0), 0);
+            const sumCost = filtered.reduce((acc, c) => acc + (Number(c.totalCost) || 0), 0);
+            if (countEl) countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'carga' : 'cargas'}`;
+            if (totalsEl) totalsEl.textContent = `${sumKwh.toFixed(1).replace('.', ',')} kWh · ${formatEuro(sumCost)}`;
 
             if (!filtered.length) {
-                container.innerHTML = `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas registradas con este filtro.</div>`;
+                container.innerHTML = `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas que coincidan con el filtro.</div>`;
             } else {
                 container.innerHTML = filtered.map(c => renderChargeCard(c, true)).join('');
             }
@@ -1236,37 +1328,121 @@
             }).join('');
         }
 
-        function computeRealConsumptionStats() {
-            const withOdo = appState.charges
+        function renderExtraStatsTab() {
+            const chartEl = document.getElementById('km-interval-chart');
+            const avgBadge = document.getElementById('km-interval-avg-badge');
+            const avgLine = document.getElementById('km-interval-avg-line');
+            const avgTag = document.getElementById('km-interval-avg-tag');
+
+            const odoCharges = appState.charges
                 .filter(c => Number.isFinite(Number(c.odometer)) && Number(c.odometer) > 0)
                 .slice()
-                .sort((a, b) => Number(a.odometer) - Number(b.odometer));
+                .sort((a, b) => (Number(a.odometer) - Number(b.odometer)) || a.date.localeCompare(b.date));
 
-            if (withOdo.length < 2) {
-                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
-            }
-
-            const firstOdo = Number(withOdo[0].odometer);
-            const lastOdo = Number(withOdo[withOdo.length - 1].odometer);
-            const distance = lastOdo - firstOdo;
-            if (distance < 30) {
-                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
-            }
-
-            // Sumamos los kWh cargados después del primer registro de odómetro hasta el último
-            let kwhBetween = 0;
-            for (let i = 1; i < withOdo.length; i++) {
-                kwhBetween += Number(withOdo[i].kwh) || 0;
-            }
-            if (kwhBetween <= 0) {
-                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            const intervals = [];
+            for (let i = 1; i < odoCharges.length; i++) {
+                const diff = Number(odoCharges[i].odometer) - Number(odoCharges[i - 1].odometer);
+                if (diff > 0 && diff < 3000) {
+                    intervals.push({
+                        km: diff,
+                        label: odoCharges[i].date.slice(5)
+                    });
+                }
             }
 
-            const realCons = (kwhBetween / distance) * 100;
-            if (realCons < 6 || realCons > 45) {
-                return { hasReal: false, consumption: Number(appState.settings.evConsumption) || 16.5 };
+            const recentIntervals = intervals.slice(-6);
+            if (!chartEl) return;
+
+            if (!recentIntervals.length) {
+                if (avgBadge) avgBadge.textContent = 'Media: -- km';
+                avgLine?.classList.add('hidden');
+                chartEl.innerHTML = `<div class="col-span-6 h-full flex items-center justify-center text-center text-xs text-slate-500 px-2">Añade el odómetro en al menos 2 cargas para ver los km entre cargas y su media.</div>`;
+            } else {
+                const avgKm = Math.round(recentIntervals.reduce((acc, item) => acc + item.km, 0) / recentIntervals.length);
+                if (avgBadge) avgBadge.textContent = `Media: ${avgKm} km`;
+
+                const maxVal = Math.max(...recentIntervals.map(item => item.km), avgKm, 1);
+                const barAreaPx = 88;
+                const lineBottomPx = Math.max(8, Math.min(barAreaPx - 4, Math.round((avgKm / maxVal) * barAreaPx))) + 18;
+                if (avgLine && avgTag) {
+                    avgLine.classList.remove('hidden');
+                    avgLine.style.bottom = `${lineBottomPx}px`;
+                    avgTag.textContent = `Media ${avgKm} km`;
+                }
+
+                chartEl.innerHTML = recentIntervals.map(item => {
+                    const hPct = Math.max(8, Math.round((item.km / maxVal) * 100));
+                    const barColor = item.km >= avgKm ? 'bg-emerald-400' : 'bg-sky-400';
+                    return `
+                        <div class="flex flex-col items-center gap-1 h-full justify-end">
+                            <span class="text-[10px] font-mono text-slate-300">${item.km}</span>
+                            <div class="w-full max-w-[28px] h-[88px] bg-slate-900 rounded-lg overflow-hidden flex items-end p-0.5">
+                                <div class="w-full ${barColor} rounded-sm transition-all duration-300" style="height:${hPct}%"></div>
+                            </div>
+                            <span class="text-[10px] font-mono text-slate-400">${item.label}</span>
+                        </div>
+                    `;
+                }).join('');
             }
-            return { hasReal: true, consumption: realCons };
+
+            const totalKwh = appState.charges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const totalCost = appState.charges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+            const avgTotalPrice = totalKwh > 0 ? totalCost / totalKwh : 0;
+
+            const homeList = appState.charges.filter(c => c.mode === 'home');
+            const homeKwh = homeList.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const homeCost = homeList.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+            const avgHomePrice = homeKwh > 0 ? homeCost / homeKwh : 0;
+
+            const pubList = appState.charges.filter(c => c.mode !== 'home');
+            const pubKwh = pubList.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+            const pubCost = pubList.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+            const avgPubPrice = pubKwh > 0 ? pubCost / pubKwh : 0;
+
+            document.getElementById('stat-avg-price-total').textContent = `${avgTotalPrice.toFixed(3).replace('.', ',')} €`;
+            document.getElementById('stat-avg-price-home').textContent = `${avgHomePrice.toFixed(3).replace('.', ',')}€`;
+            document.getElementById('stat-avg-price-public').textContent = `${avgPubPrice.toFixed(3).replace('.', ',')}€`;
+
+            const sortedDates = Array.from(new Set(appState.charges.map(c => c.date))).sort();
+            const daysEl = document.getElementById('stat-days-between');
+            const countEl = document.getElementById('stat-total-charges-count');
+            if (countEl) {
+                countEl.textContent = `${appState.charges.length} ${appState.charges.length === 1 ? 'carga registrada' : 'cargas registradas'}`;
+            }
+            if (daysEl) {
+                if (sortedDates.length >= 2) {
+                    const firstMs = new Date(sortedDates[0] + 'T00:00:00').getTime();
+                    const lastMs = new Date(sortedDates[sortedDates.length - 1] + 'T00:00:00').getTime();
+                    const spanDays = Math.max(1, Math.round((lastMs - firstMs) / (1000 * 60 * 60 * 24)));
+                    const avgDays = spanDays / (sortedDates.length - 1);
+                    daysEl.textContent = `${avgDays.toFixed(1).replace('.', ',')} días`;
+                } else {
+                    daysEl.textContent = '-- días';
+                }
+            }
+
+            const socEl = document.getElementById('stat-avg-soc');
+            const socGainEl = document.getElementById('stat-avg-soc-gain');
+            if (socEl && socGainEl) {
+                if (appState.charges.length) {
+                    const avgStart = Math.round(appState.charges.reduce((a, c) => a + (Number(c.socStart) || 0), 0) / appState.charges.length);
+                    const avgEnd = Math.round(appState.charges.reduce((a, c) => a + (Number(c.socEnd) || 0), 0) / appState.charges.length);
+                    const gain = Math.max(0, avgEnd - avgStart);
+                    socEl.textContent = `${avgStart}% → ${avgEnd}%`;
+                    socGainEl.textContent = `Ganancia media: +${gain}%`;
+                } else {
+                    socEl.textContent = '--% → --%';
+                    socGainEl.textContent = 'Ganancia media: +0%';
+                }
+            }
+
+            const cap = Number(appState.settings.batteryKwh) || 66;
+            const consInfo = computeRealConsumptionStats();
+            const fullRange = consInfo.consumption > 0 ? Math.round((cap / consInfo.consumption) * 100) : 0;
+            const rangeEl = document.getElementById('stat-full-range');
+            const batSubEl = document.getElementById('stat-battery-sub');
+            if (rangeEl) rangeEl.textContent = `${fullRange} km`;
+            if (batSubEl) batSubEl.textContent = `Batería: ${cap} kWh · ${consInfo.consumption.toFixed(1).replace('.', ',')} kWh/100`;
         }
 
         function refreshAllViews() {
@@ -1342,6 +1518,7 @@
 
             syncHistoryMonthOptions();
             renderMonthlyChart();
+            renderExtraStatsTab();
             renderHistoryList();
             updateOdometerHint();
             if (window.lucide) lucide.createIcons();
@@ -1411,7 +1588,6 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function (e) {
-                // Redimensionamos la foto a 512x512 para ahorrar espacio y usarla como icono real de app
                 const img = new Image();
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
@@ -1618,7 +1794,7 @@
         function downloadSelfAsIndexHtml() {
             try {
                 const clone = document.documentElement.cloneNode(true);
-                const cleanIds = ['monthly-chart', 'recent-charges-list', 'full-history-list', 'frequent-stations-list'];
+                const cleanIds = ['monthly-chart', 'km-interval-chart', 'recent-charges-list', 'full-history-list', 'frequent-stations-list'];
                 cleanIds.forEach(id => {
                     const el = clone.querySelector('#' + id);
                     if (el) el.innerHTML = '';
