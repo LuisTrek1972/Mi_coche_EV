@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.luistrek1972.twa",
+        "sha256_cert_fingerprints": ["D2:EC:A5:7C:61:23:37:74:64:C5:CA:5D:7F:1A:1B:B6:11:97:E8:14:B3:5E:78:8C:A4:69:9C:60:CE:F2:B9:27"]
+      }
+    }]
