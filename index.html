@@ -1,4 +1,52 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#090d16" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Control de cargas de coche eléctrico en casa y cargadores públicos en España." />
+    <title>Mi Coche EV</title>
+    <link id="dynamic-manifest-link" rel="manifest" href="manifest.json" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ev: {
+                            bg: '#090d16',
+                            card: '#111827',
+                            cardAlt: '#161f33',
+                            border: '#1f2b44',
+                            green: '#10b981',
+                            blue: '#38bdf8',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -32,10 +80,327 @@
             stroke-width: 3;
         }
         @keyframes fadeSlideUp {
-<!-- ... existing code ... -->
-            <!-- ========================================== -->
-            <!-- PESTAÑA 4: GRÁFICOS Y MÁS DATOS            -->
-            <!-- ========================================== -->
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .tab-panel {
+            animation: fadeSlideUp 0.2s ease-out;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 999px;
+            background: #1e293b;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid #090d16;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        @media (min-width: 640px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                padding: 1.5rem;
+                background: radial-gradient(circle at top, #131d33 0%, #05080f 65%);
+            }
+            #android-shell {
+                width: 100%;
+                max-width: 430px;
+                height: 860px;
+                max-height: 92vh;
+                border-radius: 2.5rem;
+                border: 6px solid #1e293b;
+                box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+
+    <div id="android-shell" class="relative flex flex-col w-full min-h-screen sm:min-h-0 bg-ev-bg text-slate-100">
+
+        <!-- Cabecera superior -->
+        <header class="sticky top-0 z-20 bg-ev-bg/95 backdrop-blur-md border-b border-ev-border/70 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+                <button type="button" onclick="triggerCarPhotoInput()" title="Cambiar foto del coche" class="relative w-11 h-11 rounded-2xl bg-slate-800/90 border border-slate-700 overflow-hidden shrink-0 focus:outline-none">
+                    <img id="header-car-img" src="" alt="Vehículo" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-0 right-0 w-4 h-4 rounded-tl-lg bg-emerald-500 text-slate-950 flex items-center justify-center">
+                        <i data-lucide="camera" class="w-2.5 h-2.5"></i>
+                    </span>
+                </button>
+                <div class="min-w-0">
+                    <h1 id="header-app-name" class="text-sm font-bold text-white tracking-tight truncate">Mi Coche EV</h1>
+                    <p id="header-car-name" class="text-xs text-slate-400 truncate">Lynk &amp; Co 02 · Mi EV</p>
+                </div>
+            </div>
+            <button type="button" onclick="switchTab('settings')" aria-label="Ir a ajustes" class="p-2.5 rounded-xl bg-ev-card border border-ev-border text-slate-300 hover:text-white active:scale-95 transition">
+                <i data-lucide="settings" class="w-4 h-4 text-amber-400"></i>
+            </button>
+        </header>
+
+        <!-- Contenido desplazable -->
+        <main id="main-scroll" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-28 space-y-4">
+
+            <!-- PESTAÑA 1: INICIO -->
+            <section id="tab-home" class="tab-panel space-y-4">
+
+                <div class="rounded-3xl p-4 bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-500/30 shadow-lg">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Ahorro vs combustión</span>
+                        <span id="stat-km-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">0 km</span>
+                    </div>
+                    <div class="flex items-baseline justify-between gap-2 mt-1">
+                        <div id="stat-savings" class="text-3xl font-extrabold font-mono text-emerald-400 tracking-tight">0,00 €</div>
+                        <div class="text-xs text-slate-300">Gasto: <span id="stat-spent" class="font-mono font-semibold text-white">0,00 €</span></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 mt-4">
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
+                            <div class="text-[11px] text-slate-400">Energía total</div>
+                            <div id="stat-kwh" class="text-base font-bold font-mono text-white mt-0.5">0,0 kWh</div>
+                        </div>
+                        <div class="rounded-2xl bg-slate-950/60 border border-slate-800/80 p-3">
+                            <div class="text-[11px] text-slate-400">Coste / 100 km</div>
+                            <div id="stat-cost-100km" class="text-base font-bold font-mono text-sky-400 mt-0.5">0,00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="home-budget-card" class="hidden rounded-2xl bg-ev-card border border-ev-border p-4 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="wallet" class="w-4 h-4 text-amber-400"></i>
+                            Presupuesto este mes
+                        </span>
+                        <span id="budget-fraction" class="font-mono text-slate-300">0,00 € / 80,00 €</span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div id="budget-bar" class="h-full rounded-full bg-emerald-500 transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                    <p id="budget-status-text" class="text-[11px] text-slate-400">Dentro del límite mensual.</p>
+                </div>
+
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Casa vs Público</h2>
+                        <span id="split-ratio-label" class="text-xs font-mono text-emerald-400">0% Casa · 0% Público</span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden flex">
+                        <div id="split-bar-home" class="h-full bg-emerald-500 transition-all duration-300" style="width: 50%;"></div>
+                        <div id="split-bar-public" class="h-full bg-sky-400 transition-all duration-300" style="width: 50%;"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5 text-xs">
+                        <div class="rounded-xl bg-ev-cardAlt p-2.5 border border-ev-border/70">
+                            <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> En casa
+                            </div>
+                            <div id="home-summary-val" class="font-mono font-bold text-white mt-1">0,00 € · 0 kWh</div>
+                        </div>
+                        <div class="rounded-xl bg-ev-cardAlt p-2.5 border border-ev-border/70">
+                            <div class="flex items-center gap-1.5 text-sky-400 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-sky-400"></span> Público
+                            </div>
+                            <div id="public-summary-val" class="font-mono font-bold text-white mt-1">0,00 € · 0 kWh</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Gasto últimos 6 meses</h2>
+                        <span class="text-[11px] text-slate-400">Casa vs Público</span>
+                    </div>
+                    <div id="monthly-chart" class="grid grid-cols-6 gap-2 items-end h-28 pt-3"></div>
+                </div>
+
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Últimas cargas</h2>
+                        <button type="button" onclick="switchTab('history')" class="text-xs font-semibold text-emerald-400 hover:underline">Ver todas</button>
+                    </div>
+                    <div id="recent-charges-list" class="space-y-2"></div>
+                </div>
+
+            </section>
+
+            <!-- PESTAÑA 2: CARGAR -->
+            <section id="tab-charge" class="tab-panel hidden space-y-4">
+
+                <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-ev-card border border-ev-border">
+                    <button type="button" id="mode-btn-home" onclick="setChargeMode('home')" class="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950">
+                        <i data-lucide="home" class="w-4 h-4"></i> En casa
+                    </button>
+                    <button type="button" id="mode-btn-public" onclick="setChargeMode('public')" class="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Fuera de casa
+                    </button>
+                </div>
+
+                <form id="charge-form" onsubmit="saveNewCharge(event)" class="space-y-3.5">
+
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="input-date" class="block text-[11px] font-semibold text-slate-400 mb-1">Fecha</label>
+                                <input id="input-date" type="date" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Energía (kWh)</label>
+                                <input id="input-kwh" type="number" step="0.01" min="0.1" placeholder="32.5" required oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-sm font-mono font-bold text-white focus:border-emerald-500 focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="pt-1 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Batería: <strong id="soc-start-label" class="font-mono text-slate-200">20%</strong> → <strong id="soc-end-label" class="font-mono text-emerald-400">80%</strong></span>
+                                <span id="soc-gain-badge" class="text-[11px] font-mono text-emerald-400">+60%</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="block text-[10px] text-slate-500 mb-1">Inicio (%)</span>
+                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview()" class="w-full" />
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-slate-500 mb-1">Fin (%)</span>
+                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview()" class="w-full" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="home-fields-box" class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                <i data-lucide="plug-zap" class="w-4 h-4"></i> Tarifa doméstica
+                            </span>
+                            <span id="home-active-rate-tag" class="text-[11px] font-mono text-slate-300">0,085 €/kWh</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" data-tariff="fixed" onclick="selectHomeTariff('fixed')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-emerald-500/15 border-emerald-500 text-emerald-300">
+                                <div class="font-bold">Precio fijo</div>
+                                <div id="btn-rate-fixed" class="text-[11px] font-mono opacity-80">0,085 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="valle" onclick="selectHomeTariff('valle')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Valle (00-08h)</div>
+                                <div id="btn-rate-valle" class="text-[11px] font-mono opacity-80">0,078 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="llano" onclick="selectHomeTariff('llano')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Llano</div>
+                                <div id="btn-rate-llano" class="text-[11px] font-mono opacity-80">0,145 €/kWh</div>
+                            </button>
+                            <button type="button" data-tariff="punta" onclick="selectHomeTariff('punta')" class="tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300">
+                                <div class="font-bold">Punta</div>
+                                <div id="btn-rate-punta" class="text-[11px] font-mono opacity-80">0,235 €/kWh</div>
+                            </button>
+                        </div>
+
+                        <div>
+                            <label for="input-home-price" class="block text-[11px] font-semibold text-slate-400 mb-1">Precio aplicado (€/kWh)</label>
+                            <input id="input-home-price" type="number" step="0.001" min="0" oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div id="public-fields-box" class="hidden rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> Cargador público
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="detectNearbyCharger()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 text-[11px] font-semibold flex items-center gap-1 active:scale-95">
+                                    <i data-lucide="navigation" class="w-3 h-3"></i> GPS
+                                </button>
+                                <button type="button" onclick="toggleBackupChargers()" class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11px] font-semibold active:scale-95">
+                                    Cercanos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="applyOperatorPreset('Zunder', 0.45)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Zunder · 0,45€</button>
+                            <button type="button" onclick="applyOperatorPreset('Iberdrola', 0.47)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Iberdrola · 0,47€</button>
+                            <button type="button" onclick="applyOperatorPreset('Tesla Supercharger', 0.39)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Tesla · 0,39€</button>
+                            <button type="button" onclick="applyOperatorPreset('Repsol Waylet', 0.49)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Repsol · 0,49€</button>
+                            <button type="button" onclick="applyOperatorPreset('Ionity', 0.55)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Ionity · 0,55€</button>
+                            <button type="button" onclick="applyOperatorPreset('Endesa X Way', 0.48)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-200 hover:border-sky-400">Endesa X · 0,48€</button>
+                        </div>
+
+                        <div id="backup-chargers-panel" class="hidden rounded-xl bg-slate-950/80 border border-amber-500/30 p-2.5 space-y-1.5">
+                            <div class="text-[11px] font-semibold text-amber-300">Alternativas rápidas cercanas:</div>
+                            <button type="button" onclick="selectStationPreset('Zunder', 'A-6 Km 42 · Villalba', 0.45)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Zunder · A-6 Km 42</span><span class="font-mono text-sky-400">180 kW</span>
+                            </button>
+                            <button type="button" onclick="selectStationPreset('Tesla Supercharger', 'Área Servicio Madrid Sur', 0.39)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Tesla · Madrid Sur</span><span class="font-mono text-sky-400">250 kW</span>
+                            </button>
+                            <button type="button" onclick="selectStationPreset('Iberdrola', 'C.C. Plaza Norte 2', 0.47)" class="w-full text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs flex justify-between">
+                                <span>Iberdrola · Plaza Norte 2</span><span class="font-mono text-sky-400">150 kW</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label for="input-operator" class="block text-[11px] font-semibold text-slate-400 mb-1">Operador</label>
+                                <input id="input-operator" type="text" placeholder="Ej. Zunder" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-public-price" class="block text-[11px] font-semibold text-slate-400 mb-1">Precio (€/kWh)</label>
+                                <input id="input-public-price" type="number" step="0.01" min="0" value="0.45" oninput="updateChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label for="input-location" class="block text-[11px] font-semibold text-slate-400 mb-1">Lugar / Estación</label>
+                                <input id="input-location" type="text" placeholder="Ej. A-3 Km 105" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label for="input-duration" class="block text-[11px] font-semibold text-slate-400 mb-1">Duración (min)</label>
+                                <input id="input-duration" type="number" min="1" placeholder="28" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-sky-400 focus:outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-ev-card border border-ev-border p-4">
+                        <label for="input-odometer" class="block text-[11px] font-semibold text-slate-400 mb-1">Odómetro actual (km, opcional)</label>
+                        <input id="input-odometer" type="number" min="0" placeholder="Ej. 14520" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] text-slate-400">Importe estimado</div>
+                            <div id="preview-total-cost" class="text-2xl font-extrabold font-mono text-emerald-400">0,00 €</div>
+                            <div id="charge-budget-hint" class="hidden text-[11px] text-amber-400 mt-0.5"></div>
+                        </div>
+                        <button type="submit" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i> Guardar
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- PESTAÑA 3: GRÁFICOS -->
             <section id="tab-stats" class="tab-panel hidden space-y-4">
 
                 <!-- GRÁFICO 1: Consumo por semana / 2 semanas + recuadros por mes -->
@@ -46,7 +411,6 @@
                             <p class="text-[11px] text-slate-400">Lun a dom · Cuenta en el mes en que termina</p>
                         </div>
 
-                        <!-- Selector «Semana» (por defecto) y «2 semanas» -->
                         <div role="group" aria-label="Agrupación temporal del consumo" class="inline-flex p-0.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
                             <button id="cons-mode-week" type="button" onclick="setConsumptionChartMode('week')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition">
                                 Semana
@@ -57,7 +421,6 @@
                         </div>
                     </div>
 
-                    <!-- Barra de detalle táctil al pulsar cualquier punto -->
                     <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-950/90 border border-slate-800/90 text-[11px]">
                         <div class="flex items-center gap-1.5 min-w-0">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
@@ -67,7 +430,6 @@
                         <span id="cons-detail-value" class="font-mono font-bold text-emerald-300 shrink-0">Último fijo</span>
                     </div>
 
-                    <!-- Leyenda compacta -->
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-400 px-0.5">
                         <span class="inline-flex items-center gap-1.5">
                             <span class="w-3 h-0.5 bg-emerald-400 rounded-full"></span> kWh/100 km
@@ -83,13 +445,11 @@
                         </span>
                     </div>
 
-                    <!-- Gráfico SVG + Recuadros laterales por mes -->
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-stretch">
-                        <div class="sm:col-span-8 bg-slate-950/75 border border-slate-800/80 rounded-xl p-2 overflow-x-auto no-scrollbar">
-                            <svg id="weekly-consumption-svg" viewBox="0 0 540 285" class="w-full min-w-[440px] h-auto select-none block" role="img" aria-label="Gráfico de consumo por semana"></svg>
+                    <div class="space-y-2.5">
+                        <div class="bg-slate-950/75 border border-slate-800/80 rounded-xl p-2 overflow-x-auto no-scrollbar">
+                            <svg id="weekly-consumption-svg" viewBox="0 0 540 270" class="w-full min-w-[420px] h-auto select-none block" role="img" aria-label="Gráfico de consumo por semana"></svg>
                         </div>
-
-                        <div id="monthly-summary-cards" class="sm:col-span-4 grid grid-cols-2 sm:grid-cols-1 gap-2"></div>
+                        <div id="monthly-summary-cards" class="grid grid-cols-1 gap-2"></div>
                     </div>
                 </div>
 
@@ -111,807 +471,1410 @@
                     </div>
 
                     <div class="bg-slate-950/75 border border-slate-800/80 rounded-xl p-2">
-                        <svg id="km-by-month-svg" viewBox="0 0 540 250" class="w-full h-auto select-none block" role="img" aria-label="Km recorridos por mes"></svg>
+                        <svg id="km-by-month-svg" viewBox="0 0 540 245" class="w-full h-auto select-none block" role="img" aria-label="Km recorridos por mes"></svg>
                     </div>
                 </div>
 
-                <!-- GRÁFICO 3: Km entre cargas con línea de media (conservado) -->
-                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                <!-- GRÁFICO 3: Km entre cargas con línea de media -->
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-3">
                     <div class="flex items-center justify-between gap-2">
                         <div>
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Km entre cargas</h2>
-                            <p class="text-[11px] text-slate-400">Calculado según el odómetro registrado</p>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-white">Km entre cargas</h2>
+                            <p class="text-[11px] text-slate-400">Distancia recorrida entre recargas</p>
                         </div>
-                        <span id="km-interval-avg-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">Media: -- km</span>
+                        <span id="km-charges-avg-badge" class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">Media: -- km</span>
                     </div>
 
-                    <div id="km-interval-chart-wrap" class="relative pt-5 pb-1">
-                        <div id="km-interval-avg-line" class="hidden absolute left-0 right-0 border-t-2 border-dashed border-amber-400/90 pointer-events-none z-10 flex justify-end pr-1" style="bottom: 36px;">
-                            <span id="km-interval-avg-tag" class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 text-[9px] font-mono font-bold -mt-2.5">Media</span>
-                        </div>
-                        <div id="km-interval-chart" class="grid grid-cols-6 gap-2 items-end h-32"></div>
-                    </div>
-                </div>
-
-                <!-- Métricas útiles: Precio medio €/kWh y Frecuencia de carga -->
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
-                        <div class="text-[11px] text-slate-400">Precio medio real</div>
-                        <div id="stat-avg-price-total" class="text-lg font-extrabold font-mono text-emerald-400">0,000 €</div>
-                        <div class="text-[10px] font-mono text-slate-400">
-                            Casa: <span id="stat-avg-price-home" class="text-emerald-300">0,000€</span> · Pub: <span id="stat-avg-price-public" class="text-sky-300">0,000€</span>
-                        </div>
-                    </div>
-
-                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
-                        <div class="text-[11px] text-slate-400">Frecuencia de carga</div>
-                        <div id="stat-days-between" class="text-lg font-extrabold font-mono text-sky-400">-- días</div>
-                        <div id="stat-total-charges-count" class="text-[10px] font-mono text-slate-400">0 cargas registradas</div>
-                    </div>
-                </div>
-
-                <!-- Métricas de batería: SOC medio y Autonomía estimada al 100% -->
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
-                        <div class="text-[11px] text-slate-400">Batería media (SOC)</div>
-                        <div id="stat-avg-soc" class="text-base font-extrabold font-mono text-white">20% → 80%</div>
-                        <div id="stat-avg-soc-gain" class="text-[10px] font-mono text-emerald-400">Ganancia media: +60%</div>
-                    </div>
-
-                    <div class="rounded-2xl bg-ev-card border border-ev-border p-3.5 space-y-1">
-                        <div class="text-[11px] text-slate-400">Autonomía al 100%</div>
-                        <div id="stat-full-range" class="text-base font-extrabold font-mono text-amber-300">0 km</div>
-                        <div id="stat-battery-sub" class="text-[10px] font-mono text-slate-400">Batería: 66 kWh</div>
+                    <div class="bg-slate-950/75 border border-slate-800/80 rounded-xl p-2">
+                        <svg id="km-between-charges-svg" viewBox="0 0 540 220" class="w-full h-auto select-none block" role="img" aria-label="Km entre cargas"></svg>
                     </div>
                 </div>
 
             </section>
-<!-- ... existing code ... -->
-        let appState = {
-            activeTab: 'home',
-            chargeMode: 'home',
-            selectedTariff: 'fixed',
-            historyFilter: 'all',
-            historyMonth: 'all',
-            consumptionChartMode: 'week',
-            selectedConsumptionPointId: null,
-            editingChargeId: null,
-            kwhManuallyEdited: false,
-            settings: { ...DEFAULT_SETTINGS },
-            charges: []
-        };
-<!-- ... existing code ... -->
-        function renderExtraStatsTab() {
-            renderWeeklyAndMonthlyCharts();
 
-            const chartEl = document.getElementById('km-interval-chart');
-            const avgBadge = document.getElementById('km-interval-avg-badge');
-            const avgLine = document.getElementById('km-interval-avg-line');
-            const avgTag = document.getElementById('km-interval-avg-tag');
-<!-- ... existing code ... -->
-            const cap = Number(appState.settings.batteryKwh) || 66;
-            const consInfo = computeRealConsumptionStats();
-            const fullRange = consInfo.consumption > 0 ? Math.round((cap / consInfo.consumption) * 100) : 0;
-            const rangeEl = document.getElementById('stat-full-range');
-            const batSubEl = document.getElementById('stat-battery-sub');
-            if (rangeEl) rangeEl.textContent = `${fullRange} km`;
-            if (batSubEl) batSubEl.textContent = `Batería: ${cap} kWh · ${consInfo.consumption.toFixed(1).replace('.', ',')} kWh/100`;
-        }
+            <!-- PESTAÑA 4: HISTORIAL -->
+            <section id="tab-history" class="tab-panel hidden space-y-3">
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="setHistoryFilter('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950">Todas</button>
+                    <button type="button" onclick="setHistoryFilter('home')" id="filter-btn-home" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Casa</button>
+                    <button type="button" onclick="setHistoryFilter('public')" id="filter-btn-public" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300">Público</button>
+                </div>
+                <div id="full-history-list" class="space-y-2.5"></div>
+            </section>
 
-        function createSvgNode(tag, attrs) {
-            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-            if (attrs) {
-                Object.keys(attrs).forEach((k) => el.setAttribute(k, String(attrs[k])));
-            }
-            return el;
-        }
+            <!-- PESTAÑA 5: AJUSTES -->
+            <section id="tab-settings" class="tab-panel hidden space-y-4">
 
-        function formatCommaNum(num, decimals = 1) {
-            return Number(num).toFixed(decimals).replace('.', ',');
-        }
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">App y Vehículo</h2>
 
-        function setConsumptionChartMode(mode) {
-            appState.consumptionChartMode = mode === 'biweek' ? 'biweek' : 'week';
-            appState.selectedConsumptionPointId = null;
+                    <div class="flex items-center gap-3">
+                        <img id="car-preview-img" src="" alt="Coche" class="w-16 h-16 rounded-2xl object-cover bg-slate-900 border border-slate-700" />
+                        <div class="space-y-1.5">
+                            <button type="button" onclick="triggerCarPhotoInput()" class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">Cambiar foto / icono</button>
+                            <button type="button" onclick="resetCarPhoto()" class="block text-[11px] text-slate-400 hover:text-slate-200">Restaurar icono coche</button>
+                        </div>
+                        <input id="car-photo-file" type="file" accept="image/*" onchange="handleCarPhotoUpload(event)" class="hidden" />
+                    </div>
 
-            const titleEl = document.getElementById('consumption-chart-title');
-            const btnWeek = document.getElementById('cons-mode-week');
-            const btnBiweek = document.getElementById('cons-mode-biweek');
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <div>
+                            <label for="setting-app-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre de la aplicación</label>
+                            <input id="setting-app-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="setting-car-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Modelo / Nombre del coche</label>
+                            <input id="setting-car-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
 
-            if (titleEl) {
-                titleEl.textContent = appState.consumptionChartMode === 'week'
-                    ? 'Consumo por semana'
-                    : 'Consumo cada 2 semanas';
-            }
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-battery-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Batería útil (kWh)</label>
+                            <input id="setting-battery-kwh" type="number" step="0.5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="setting-ev-consumption" class="block text-[11px] font-semibold text-slate-400 mb-1">Consumo EV (kWh/100)</label>
+                            <input id="setting-ev-consumption" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+                </div>
 
-            if (btnWeek && btnBiweek) {
-                if (appState.consumptionChartMode === 'week') {
-                    btnWeek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition';
-                    btnBiweek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white transition';
-                } else {
-                    btnBiweek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition';
-                    btnWeek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white transition';
-                }
-            }
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <label class="flex items-center justify-between cursor-pointer select-none">
+                        <div>
+                            <div class="text-xs font-bold text-white">Activar presupuesto mensual</div>
+                            <div class="text-[11px] text-slate-400">Mostrar barra de límite en Inicio y aviso al cargar</div>
+                        </div>
+                        <input id="setting-budget-enabled" type="checkbox" onchange="saveSettingsFromUI()" class="w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
+                    </label>
+                    <div id="setting-budget-amount-wrap" class="hidden pt-1">
+                        <label for="setting-budget-limit" class="block text-[11px] font-semibold text-slate-400 mb-1">Límite mensual (€)</label>
+                        <input id="setting-budget-limit" type="number" step="5" min="5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                    </div>
+                </div>
 
-            resetConsumptionDetailBanner();
-            renderWeeklyAndMonthlyCharts();
-        }
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Tarifas de casa (€/kWh)</h2>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-rate-fixed" class="block text-[11px] text-slate-400 mb-1">Precio fijo</label>
+                            <input id="setting-rate-fixed" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-valle" class="block text-[11px] text-slate-400 mb-1">Valle (00-08h)</label>
+                            <input id="setting-rate-valle" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-llano" class="block text-[11px] text-slate-400 mb-1">Llano</label>
+                            <input id="setting-rate-llano" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-rate-punta" class="block text-[11px] text-slate-400 mb-1">Punta</label>
+                            <input id="setting-rate-punta" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                    </div>
+                </div>
 
-        function resetConsumptionDetailBanner() {
-            const rangeEl = document.getElementById('cons-detail-range');
-            const monthEl = document.getElementById('cons-detail-month');
-            const valEl = document.getElementById('cons-detail-value');
-            if (rangeEl) rangeEl.textContent = 'Toca un punto del gráfico';
-            if (monthEl) {
-                monthEl.classList.add('hidden');
-                monthEl.textContent = '';
-            }
-            if (valEl) {
-                valEl.className = 'font-mono font-bold text-emerald-300 shrink-0';
-                valEl.textContent = 'Último fijo';
-            }
-        }
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Comparativa combustión</h2>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="setting-ice-liters" class="block text-[11px] text-slate-400 mb-1">Consumo (L/100 km)</label>
+                            <input id="setting-ice-liters" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                        <div>
+                            <label for="setting-fuel-price" class="block text-[11px] text-slate-400 mb-1">Carburante (€/L)</label>
+                            <input id="setting-fuel-price" type="number" step="0.01" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                        </div>
+                    </div>
+                </div>
 
-        function showConsumptionPointDetail(item) {
-            appState.selectedConsumptionPointId = item.id;
-            const rangeEl = document.getElementById('cons-detail-range');
-            const monthEl = document.getElementById('cons-detail-month');
-            const valEl = document.getElementById('cons-detail-value');
+                <div class="rounded-2xl bg-ev-card border border-ev-border p-4 space-y-2.5">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Datos y copia CSV</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="exportChargesCSV()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+                        </button>
+                        <button type="button" onclick="document.getElementById('csv-import-input').click()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-sky-400 flex items-center justify-center gap-1.5">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar CSV
+                        </button>
+                        <input id="csv-import-input" type="file" accept=".csv" onchange="importChargesCSV(event)" class="hidden" />
+                    </div>
+                    <button type="button" onclick="restoreDemoData()" class="w-full py-2 rounded-xl border border-emerald-500/30 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/10">Restaurar datos de ejemplo</button>
+                    <button type="button" onclick="clearAllData()" class="w-full py-2 rounded-xl border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10">Borrar historial</button>
+                </div>
 
-            if (rangeEl) rangeEl.textContent = item.range;
-            if (monthEl) {
-                monthEl.textContent = item.monthName;
-                monthEl.classList.remove('hidden');
-            }
-            if (valEl) {
-                if (item.value === null) {
-                    valEl.className = 'font-mono font-bold text-rose-300 shrink-0';
-                    valEl.textContent = 'sin datos';
-                } else {
-                    valEl.className = 'font-mono font-bold text-emerald-300 shrink-0';
-                    valEl.textContent = `${formatCommaNum(item.value)} kWh/100`;
-                }
-            }
+            </section>
 
-            renderWeeklyAndMonthlyCharts();
-        }
+        </main>
 
-        function buildAnalyticsDatasets() {
-            const monthNamesFull = [
-                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        <!-- Toast flotante -->
+        <div id="toast-box" class="pointer-events-none fixed sm:absolute bottom-24 left-1/2 -translate-x-1/2 z-40 opacity-0 transition-opacity duration-200">
+            <div id="toast-msg" class="px-4 py-2 rounded-full bg-slate-900/95 border border-emerald-500/40 text-xs font-semibold text-emerald-300 shadow-xl whitespace-nowrap"></div>
+        </div>
+
+        <!-- Barra de navegación inferior -->
+        <nav class="sticky bottom-0 z-30 bg-ev-card/95 backdrop-blur-md border-t border-ev-border px-1.5 py-2 grid grid-cols-5 gap-0.5">
+            <button type="button" id="nav-btn-home" onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-emerald-400 bg-emerald-500/10">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Inicio</span>
+            </button>
+            <button type="button" id="nav-btn-charge" onclick="switchTab('charge')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Cargar</span>
+            </button>
+            <button type="button" id="nav-btn-stats" onclick="switchTab('stats')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Gráficos</span>
+            </button>
+            <button type="button" id="nav-btn-history" onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Historial</span>
+            </button>
+            <button type="button" id="nav-btn-settings" onclick="switchTab('settings')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400">
+                <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-0.5">Ajustes</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+
+            const DEFAULT_CAR_PHOTO = "data:image/svg+xml;utf8," + encodeURIComponent(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+                '<rect width="120" height="120" rx="24" fill="#0f172a"/>' +
+                '<path d="M24 68 L34 45 C37 39 43 36 50 36 L70 36 C77 36 83 39 86 45 L96 68 L96 82 C96 85 94 87 91 87 L85 87 C82 87 80 85 80 82 L80 78 L40 78 L40 82 C40 85 38 87 35 87 L29 87 C26 87 24 85 24 82 Z" fill="#10b981"/>' +
+                '<path d="M38 48 L43 41 L77 41 L82 48 Z" fill="#090d16"/>' +
+                '<circle cx="38" cy="64" r="5" fill="#e2e8f0"/>' +
+                '<circle cx="82" cy="64" r="5" fill="#e2e8f0"/>' +
+                '<rect x="50" y="61" width="20" height="5" rx="2.5" fill="#064e3b"/>' +
+                '</svg>'
+            );
+
+            const DEFAULT_SETTINGS = {
+                appName: 'Mi Coche EV',
+                carName: 'Lynk & Co 02 · Mi EV',
+                carPhoto: DEFAULT_CAR_PHOTO,
+                batteryKwh: 66,
+                evConsumption: 16.5,
+                budgetEnabled: false,
+                budgetLimit: 80,
+                rateFixed: 0.085,
+                rateValle: 0.078,
+                rateLlano: 0.145,
+                ratePunta: 0.235,
+                iceLiters: 6.4,
+                fuelPrice: 1.58
+            };
+
+            const DEMO_CHARGES = [
+                { id: 'c1', date: '2026-11-22', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 52.0, pricePerKwh: 0.085, totalCost: 4.42, socStart: 20, socEnd: 85, durationMin: null, odometer: 14790 },
+                { id: 'c2', date: '2026-11-15', mode: 'public', tariff: 'dc', operator: 'Zunder', location: 'A-6 Km 42', kwh: 54.5, pricePerKwh: 0.45, totalCost: 24.53, socStart: 18, socEnd: 82, durationMin: 29, odometer: 14520 },
+                { id: 'c3', date: '2026-11-08', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 47.0, pricePerKwh: 0.078, totalCost: 3.67, socStart: 22, socEnd: 80, durationMin: null, odometer: 14250 },
+                { id: 'c4', date: '2026-11-01', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 43.5, pricePerKwh: 0.085, totalCost: 3.70, socStart: 25, socEnd: 80, durationMin: null, odometer: 14000 },
+                { id: 'c5', date: '2026-10-25', mode: 'public', tariff: 'dc', operator: 'Tesla Supercharger', location: 'Madrid Sur', kwh: 51.0, pricePerKwh: 0.39, totalCost: 19.89, socStart: 16, socEnd: 80, durationMin: 25, odometer: 13720 },
+                { id: 'c6', date: '2026-10-11', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 49.0, pricePerKwh: 0.078, totalCost: 3.82, socStart: 18, socEnd: 82, durationMin: null, odometer: 13440 },
+                { id: 'c7', date: '2026-10-04', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 44.0, pricePerKwh: 0.085, totalCost: 3.74, socStart: 20, socEnd: 80, durationMin: null, odometer: 13175 },
+                { id: 'c8', date: '2026-09-27', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 45.5, pricePerKwh: 0.078, totalCost: 3.55, socStart: 19, socEnd: 80, durationMin: null, odometer: 12900 },
+                { id: 'c9', date: '2026-09-20', mode: 'public', tariff: 'dc', operator: 'Iberdrola', location: 'Plaza Norte 2', kwh: 42.0, pricePerKwh: 0.47, totalCost: 19.74, socStart: 21, socEnd: 80, durationMin: 31, odometer: 12645 },
+                { id: 'c10', date: '2026-09-13', mode: 'home', tariff: 'fixed', operator: 'Casa', location: 'Garaje', kwh: 46.5, pricePerKwh: 0.085, totalCost: 3.95, socStart: 17, socEnd: 80, durationMin: null, odometer: 12370 },
+                { id: 'c11', date: '2026-09-06', mode: 'home', tariff: 'valle', operator: 'Casa', location: 'Garaje', kwh: 43.0, pricePerKwh: 0.078, totalCost: 3.35, socStart: 23, socEnd: 80, durationMin: null, odometer: 12110 }
             ];
-            const monthNamesShort = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-            const fallbackCons = Number(appState.settings.evConsumption) || 16.5;
-            const sortedCharges = appState.charges
-                .slice()
-                .sort((a, b) => a.date.localeCompare(b.date) || ((Number(a.odometer) || 0) - (Number(b.odometer) || 0)));
+            const STORAGE_KEY_CHARGES = 'ev_tracker_es_charges_v3';
+            const STORAGE_KEY_SETTINGS = 'ev_tracker_es_settings_v3';
 
-            // Construir tramos reales entre odómetros o estimados por kWh y consumo ref.
-            const segments = [];
-            let prevOdo = null;
+            const appState = {
+                activeTab: 'home',
+                chargeMode: 'home',
+                selectedTariff: 'fixed',
+                historyFilter: 'all',
+                consumptionChartMode: 'week',
+                selectedConsumptionPointId: null,
+                settings: { ...DEFAULT_SETTINGS },
+                charges: []
+            };
 
-            sortedCharges.forEach((c) => {
-                const kwh = Number(c.kwh) || 0;
-                const odo = Number(c.odometer);
-                let km = 0;
-                let cons = fallbackCons;
+            function safeIcons() {
+                try {
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                } catch (e) {}
+            }
 
-                if (Number.isFinite(odo) && odo > 0) {
-                    if (prevOdo !== null && odo > prevOdo && (odo - prevOdo) < 4000) {
-                        km = odo - prevOdo;
-                        if (kwh > 0) {
-                            const rawCons = (kwh / km) * 100;
-                            if (rawCons >= 6 && rawCons <= 55) {
-                                cons = rawCons;
-                            }
+            function createSvgNode(tag, attrs) {
+                const el = document.createElementNS(SVG_NS, tag);
+                if (attrs) {
+                    Object.keys(attrs).forEach((k) => el.setAttribute(k, String(attrs[k])));
+                }
+                return el;
+            }
+
+            function formatCommaNum(num, decimals = 1) {
+                return Number(num).toFixed(decimals).replace('.', ',');
+            }
+
+            function formatEuro(val) {
+                return (Number(val) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+            }
+
+            function loadStateFromStorage() {
+                try {
+                    const rawSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
+                    if (rawSettings) {
+                        appState.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(rawSettings) };
+                    }
+                    const rawCharges = localStorage.getItem(STORAGE_KEY_CHARGES);
+                    if (rawCharges) {
+                        const parsed = JSON.parse(rawCharges);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            appState.charges = parsed;
+                            return;
                         }
+                    }
+                } catch (e) {}
+                appState.charges = DEMO_CHARGES.map((item) => ({ ...item }));
+            }
+
+            function persistState() {
+                try {
+                    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(appState.settings));
+                    localStorage.setItem(STORAGE_KEY_CHARGES, JSON.stringify(appState.charges));
+                } catch (e) {}
+            }
+
+            function showToast(msg) {
+                const box = document.getElementById('toast-box');
+                const label = document.getElementById('toast-msg');
+                if (!box || !label) return;
+                label.textContent = msg;
+                box.classList.remove('opacity-0');
+                clearTimeout(window._toastTimer);
+                window._toastTimer = setTimeout(() => box.classList.add('opacity-0'), 2200);
+            }
+
+            window.switchTab = function (tabName) {
+                appState.activeTab = tabName;
+                ['home', 'charge', 'stats', 'history', 'settings'].forEach((t) => {
+                    const panel = document.getElementById('tab-' + t);
+                    const btn = document.getElementById('nav-btn-' + t);
+                    if (panel) panel.classList.toggle('hidden', t !== tabName);
+                    if (btn) {
+                        if (t === tabName) {
+                            btn.classList.add('text-emerald-400', 'bg-emerald-500/10');
+                            btn.classList.remove('text-slate-400');
+                        } else {
+                            btn.classList.remove('text-emerald-400', 'bg-emerald-500/10');
+                            btn.classList.add('text-slate-400');
+                        }
+                    }
+                });
+                const mainScroll = document.getElementById('main-scroll');
+                if (mainScroll) mainScroll.scrollTop = 0;
+                if (tabName === 'charge') window.updateChargeTotalPreview();
+                if (tabName === 'stats') renderChartsTab();
+                safeIcons();
+            };
+
+            window.setChargeMode = function (mode) {
+                appState.chargeMode = mode;
+                const btnHome = document.getElementById('mode-btn-home');
+                const btnPublic = document.getElementById('mode-btn-public');
+                const homeBox = document.getElementById('home-fields-box');
+                const publicBox = document.getElementById('public-fields-box');
+
+                if (mode === 'home') {
+                    btnHome.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950';
+                    btnPublic.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white';
+                    homeBox.classList.remove('hidden');
+                    publicBox.classList.add('hidden');
+                    window.selectHomeTariff(appState.selectedTariff || 'fixed');
+                } else {
+                    btnPublic.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition bg-sky-400 text-slate-950';
+                    btnHome.className = 'py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white';
+                    publicBox.classList.remove('hidden');
+                    homeBox.classList.add('hidden');
+                }
+                window.updateChargeTotalPreview();
+            };
+
+            window.selectHomeTariff = function (tariff) {
+                appState.selectedTariff = tariff;
+                const s = appState.settings;
+                const map = { fixed: s.rateFixed, valle: s.rateValle, llano: s.rateLlano, punta: s.ratePunta };
+                const rate = Number(map[tariff] ?? s.rateFixed);
+                const priceInput = document.getElementById('input-home-price');
+                const rateTag = document.getElementById('home-active-rate-tag');
+                if (priceInput) priceInput.value = rate.toFixed(3);
+                if (rateTag) rateTag.textContent = `${rate.toFixed(3).replace('.', ',')} €/kWh`;
+
+                document.querySelectorAll('.tariff-btn').forEach((btn) => {
+                    const active = btn.dataset.tariff === tariff;
+                    btn.className = active
+                        ? 'tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-emerald-500/15 border-emerald-500 text-emerald-300'
+                        : 'tariff-btn py-2 px-2.5 rounded-xl border text-left text-xs transition bg-slate-900 border-slate-700 text-slate-300';
+                });
+                window.updateChargeTotalPreview();
+            };
+
+            window.applyOperatorPreset = function (operator, price) {
+                document.getElementById('input-operator').value = operator;
+                document.getElementById('input-public-price').value = price.toFixed(2);
+                window.updateChargeTotalPreview();
+            };
+
+            window.selectStationPreset = function (operator, location, price) {
+                window.applyOperatorPreset(operator, price);
+                document.getElementById('input-location').value = location;
+                document.getElementById('backup-chargers-panel')?.classList.add('hidden');
+                showToast(`Seleccionado: ${operator}`);
+            };
+
+            window.toggleBackupChargers = function () {
+                document.getElementById('backup-chargers-panel')?.classList.toggle('hidden');
+            };
+
+            window.detectNearbyCharger = function () {
+                if (!navigator.geolocation) {
+                    window.selectStationPreset('Zunder', 'Estación cercana GPS', 0.45);
+                    return;
+                }
+                showToast('Buscando cargador cercano...');
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        window.selectStationPreset('Zunder', `GPS (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`, 0.45);
+                    },
+                    () => {
+                        window.selectStationPreset('Zunder', 'Área de servicio cercana', 0.45);
+                    },
+                    { timeout: 3500 }
+                );
+            };
+
+            window.updateBatteryPreview = function () {
+                const startEl = document.getElementById('input-soc-start');
+                const endEl = document.getElementById('input-soc-end');
+                if (!startEl || !endEl) return;
+                let start = Number(startEl.value);
+                let end = Number(endEl.value);
+                if (end <= start) {
+                    end = Math.min(100, start + 1);
+                    endEl.value = end;
+                }
+                document.getElementById('soc-start-label').textContent = `${start}%`;
+                document.getElementById('soc-end-label').textContent = `${end}%`;
+                document.getElementById('soc-gain-badge').textContent = `+${end - start}%`;
+            };
+
+            function getCurrentMonthSpent() {
+                const latest = appState.charges[0]?.date || new Date().toISOString().slice(0, 10);
+                const ym = latest.slice(0, 7);
+                return appState.charges
+                    .filter((c) => c.date.startsWith(ym))
+                    .reduce((acc, c) => acc + (Number(c.totalCost) || 0), 0);
+            }
+
+            window.updateChargeTotalPreview = function () {
+                const kwh = Number(document.getElementById('input-kwh')?.value) || 0;
+                const unitPrice = appState.chargeMode === 'home'
+                    ? (Number(document.getElementById('input-home-price')?.value) || 0)
+                    : (Number(document.getElementById('input-public-price')?.value) || 0);
+                const total = kwh * unitPrice;
+
+                const previewEl = document.getElementById('preview-total-cost');
+                if (previewEl) previewEl.textContent = formatEuro(total);
+
+                const hint = document.getElementById('charge-budget-hint');
+                if (hint) {
+                    if (appState.settings.budgetEnabled) {
+                        const projected = getCurrentMonthSpent() + total;
+                        const limit = Number(appState.settings.budgetLimit) || 80;
+                        hint.classList.remove('hidden');
+                        hint.textContent = `Mes tras carga: ${formatEuro(projected)} / ${formatEuro(limit)}`;
+                        hint.className = projected > limit ? 'text-[11px] text-rose-400 mt-0.5 font-semibold' : 'text-[11px] text-amber-400 mt-0.5';
+                    } else {
+                        hint.classList.add('hidden');
+                    }
+                }
+            };
+
+            window.saveNewCharge = function (event) {
+                event.preventDefault();
+                const date = document.getElementById('input-date').value || new Date().toISOString().slice(0, 10);
+                const kwh = Number(document.getElementById('input-kwh').value);
+                if (!kwh || kwh <= 0) {
+                    showToast('Introduce los kWh cargados');
+                    return;
+                }
+                const isHome = appState.chargeMode === 'home';
+                const pricePerKwh = isHome
+                    ? (Number(document.getElementById('input-home-price').value) || 0)
+                    : (Number(document.getElementById('input-public-price').value) || 0);
+                const totalCost = Number((kwh * pricePerKwh).toFixed(2));
+                const socStart = Number(document.getElementById('input-soc-start').value);
+                const socEnd = Number(document.getElementById('input-soc-end').value);
+                const durationRaw = !isHome ? Number(document.getElementById('input-duration').value) : null;
+                const odometerRaw = Number(document.getElementById('input-odometer').value) || null;
+
+                appState.charges.unshift({
+                    id: 'chg_' + Date.now(),
+                    date,
+                    mode: appState.chargeMode,
+                    tariff: isHome ? appState.selectedTariff : 'dc',
+                    operator: isHome ? 'Casa' : (document.getElementById('input-operator').value.trim() || 'Cargador público'),
+                    location: isHome ? 'Garaje' : (document.getElementById('input-location').value.trim() || 'En ruta'),
+                    kwh,
+                    pricePerKwh,
+                    totalCost,
+                    socStart,
+                    socEnd,
+                    durationMin: durationRaw > 0 ? durationRaw : null,
+                    odometer: odometerRaw
+                });
+
+                appState.charges.sort((a, b) => b.date.localeCompare(a.date));
+                persistState();
+
+                document.getElementById('input-kwh').value = '';
+                document.getElementById('input-duration').value = '';
+                document.getElementById('input-odometer').value = '';
+                window.updateChargeTotalPreview();
+                refreshAllViews();
+                showToast('Carga guardada');
+                window.switchTab('home');
+            };
+
+            window.deleteCharge = function (id) {
+                appState.charges = appState.charges.filter((c) => c.id !== id);
+                persistState();
+                refreshAllViews();
+                showToast('Carga eliminada');
+            };
+
+            window.setHistoryFilter = function (filter) {
+                appState.historyFilter = filter;
+                ['all', 'home', 'public'].forEach((f) => {
+                    const btn = document.getElementById('filter-btn-' + f);
+                    if (!btn) return;
+                    btn.className = f === filter
+                        ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950'
+                        : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-ev-card border border-ev-border text-slate-300';
+                });
+                renderHistoryList();
+            };
+
+            function renderChargeCard(item, allowDelete) {
+                const isHome = item.mode === 'home';
+                const badgeColor = isHome
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : 'bg-sky-500/15 text-sky-400 border-sky-500/30';
+                const tariffNames = { fixed: 'Precio fijo', valle: 'Valle', llano: 'Llano', punta: 'Punta', dc: 'Rápida' };
+                const subLabel = isHome
+                    ? `${tariffNames[item.tariff] || 'Casa'} · ${item.socStart}%→${item.socEnd}%`
+                    : `${item.location} · ${item.socStart}%→${item.socEnd}%${item.durationMin ? ` · ${item.durationMin}m` : ''}`;
+
+                return `
+                    <div class="rounded-2xl bg-ev-cardAlt/90 border border-ev-border p-3 flex items-center justify-between gap-2.5">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${badgeColor}">${isHome ? 'CASA' : item.operator}</span>
+                                <span class="text-[11px] font-mono text-slate-400">${item.date}</span>
+                            </div>
+                            <div class="text-xs text-slate-300 mt-1 truncate">${subLabel}</div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <div class="text-right">
+                                <div class="text-sm font-bold font-mono text-white">${formatEuro(item.totalCost)}</div>
+                                <div class="text-[11px] font-mono text-slate-400">${Number(item.kwh).toFixed(1)} kWh</div>
+                            </div>
+                            ${allowDelete ? `
+                                <button type="button" onclick="deleteCharge('${item.id}')" aria-label="Eliminar carga" class="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderHistoryList() {
+                const container = document.getElementById('full-history-list');
+                if (!container) return;
+                const filtered = appState.charges.filter((c) => appState.historyFilter === 'all' || c.mode === appState.historyFilter);
+                container.innerHTML = filtered.length
+                    ? filtered.map((c) => renderChargeCard(c, true)).join('')
+                    : `<div class="rounded-2xl bg-ev-card border border-ev-border p-6 text-center text-xs text-slate-400">No hay cargas registradas en este filtro.</div>`;
+                safeIcons();
+            }
+
+            function renderHomeMonthlyChart() {
+                const chartEl = document.getElementById('monthly-chart');
+                if (!chartEl) return;
+                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                const grouped = {};
+                appState.charges.forEach((c) => {
+                    const ym = c.date.slice(0, 7);
+                    if (!grouped[ym]) grouped[ym] = { home: 0, public: 0 };
+                    if (c.mode === 'home') grouped[ym].home += Number(c.totalCost) || 0;
+                    else grouped[ym].public += Number(c.totalCost) || 0;
+                });
+                const keys = Object.keys(grouped).sort().slice(-6);
+                if (!keys.length) {
+                    chartEl.innerHTML = `<div class="col-span-6 text-center text-xs text-slate-500">Sin datos aún</div>`;
+                    return;
+                }
+                const maxTotal = Math.max(...keys.map((k) => grouped[k].home + grouped[k].public), 1);
+                chartEl.innerHTML = keys.map((k) => {
+                    const hPct = Math.round((grouped[k].home / maxTotal) * 100);
+                    const pPct = Math.round((grouped[k].public / maxTotal) * 100);
+                    const mIndex = Number(k.split('-')[1]) - 1;
+                    const total = grouped[k].home + grouped[k].public;
+                    return `
+                        <div class="flex flex-col items-center gap-1 h-full justify-end">
+                            <span class="text-[10px] font-mono text-slate-400">${Math.round(total)}€</span>
+                            <div class="w-full max-w-[26px] h-16 bg-slate-900 rounded-lg overflow-hidden flex flex-col justify-end p-0.5">
+                                <div class="w-full bg-sky-400 rounded-t-sm" style="height:${pPct}%"></div>
+                                <div class="w-full bg-emerald-500 rounded-b-sm" style="height:${hPct}%"></div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400">${monthNames[mIndex] || k}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function buildAnalyticsDatasets() {
+                const monthNamesFull = [
+                    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                ];
+                const monthNamesShort = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+                const fallbackCons = Number(appState.settings.evConsumption) || 16.5;
+
+                const sortedCharges = appState.charges
+                    .slice()
+                    .sort((a, b) => a.date.localeCompare(b.date) || ((Number(a.odometer) || 0) - (Number(b.odometer) || 0)));
+
+                const segments = [];
+                let prevOdo = null;
+
+                sortedCharges.forEach((c) => {
+                    const kwh = Number(c.kwh) || 0;
+                    const odo = Number(c.odometer);
+                    let km = 0;
+                    let cons = fallbackCons;
+
+                    if (Number.isFinite(odo) && odo > 0) {
+                        if (prevOdo !== null && odo > prevOdo && (odo - prevOdo) < 4000) {
+                            km = odo - prevOdo;
+                            if (kwh > 0) {
+                                const rawCons = (kwh / km) * 100;
+                                if (rawCons >= 7 && rawCons <= 50) cons = rawCons;
+                            }
+                        } else if (kwh > 0) {
+                            km = Math.round((kwh / fallbackCons) * 100);
+                        }
+                        prevOdo = odo;
                     } else if (kwh > 0) {
                         km = Math.round((kwh / fallbackCons) * 100);
                     }
-                    prevOdo = odo;
-                } else if (kwh > 0) {
-                    km = Math.round((kwh / fallbackCons) * 100);
-                }
 
-                segments.push({
-                    date: c.date,
-                    kwh,
-                    km,
-                    consumption: Number(cons.toFixed(1))
-                });
-            });
-
-            // 1. Resumen por mes (últimos 3-4 meses con actividad)
-            const monthMap = new Map();
-            segments.forEach((seg) => {
-                const ym = seg.date.slice(0, 7);
-                if (!monthMap.has(ym)) {
-                    const [yStr, mStr] = ym.split('-');
-                    const mIdx = Math.max(0, Math.min(11, Number(mStr) - 1));
-                    monthMap.set(ym, {
-                        key: ym,
-                        name: monthNamesFull[mIdx],
-                        shortName: monthNamesShort[mIdx],
-                        year: yStr,
-                        km: 0,
-                        kwh: 0,
-                        consList: []
+                    segments.push({
+                        date: c.date,
+                        kwh,
+                        km,
+                        consumption: Number(cons.toFixed(1))
                     });
-                }
-                const entry = monthMap.get(ym);
-                entry.km += seg.km;
-                entry.kwh += seg.kwh;
-                if (seg.consumption > 0) entry.consList.push(seg.consumption);
-            });
-
-            const monthlyStats = Array.from(monthMap.values())
-                .sort((a, b) => a.key.localeCompare(b.key))
-                .slice(-4)
-                .map((m) => {
-                    const avgCons = m.km > 0 && m.kwh > 0
-                        ? Number(((m.kwh / m.km) * 100).toFixed(1))
-                        : m.consList.length
-                            ? Number((m.consList.reduce((acc, v) => acc + v, 0) / m.consList.length).toFixed(1))
-                            : fallbackCons;
-                    return {
-                        key: m.key,
-                        name: m.name,
-                        shortName: m.shortName,
-                        km: Math.round(m.km),
-                        avgConsumption: avgCons
-                    };
                 });
 
-            // 2. Agrupación semanal (lunes a domingo, asignada al mes en que cae el domingo)
-            const getMondayDate = (dateStr) => {
-                const d = new Date(dateStr + 'T12:00:00');
-                const day = d.getDay(); // 0 dom .. 6 sab
-                const diffToMonday = day === 0 ? -6 : 1 - day;
-                d.setDate(d.getDate() + diffToMonday);
-                return d;
-            };
-
-            const toIso = (d) => {
-                const y = d.getFullYear();
-                const m = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${y}-${m}-${day}`;
-            };
-
-            const formatShortDay = (d) => `${String(d.getDate()).padStart(2, '0')} ${monthNamesShort[d.getMonth()]}`;
-
-            let weeklyPoints = [];
-            if (segments.length > 0) {
-                const firstMonday = getMondayDate(segments[0].date);
-                const lastMonday = getMondayDate(segments[segments.length - 1].date);
-
-                // Limitar a las últimas 12 semanas para una lectura cómoda en móvil
-                const maxStartMonday = new Date(lastMonday.getTime());
-                maxStartMonday.setDate(maxStartMonday.getDate() - 11 * 7);
-                const startMonday = firstMonday > maxStartMonday ? firstMonday : maxStartMonday;
-
-                const weekBuckets = new Map();
+                const monthMap = new Map();
                 segments.forEach((seg) => {
-                    const monIso = toIso(getMondayDate(seg.date));
-                    if (!weekBuckets.has(monIso)) {
-                        weekBuckets.set(monIso, { km: 0, kwh: 0, consValues: [] });
+                    const ym = seg.date.slice(0, 7);
+                    if (!monthMap.has(ym)) {
+                        const [yStr, mStr] = ym.split('-');
+                        const mIdx = Math.max(0, Math.min(11, Number(mStr) - 1));
+                        monthMap.set(ym, {
+                            key: ym,
+                            name: monthNamesFull[mIdx],
+                            shortName: monthNamesShort[mIdx],
+                            year: yStr,
+                            km: 0,
+                            kwh: 0,
+                            consList: []
+                        });
                     }
-                    const b = weekBuckets.get(monIso);
-                    b.km += seg.km;
-                    b.kwh += seg.kwh;
-                    b.consValues.push(seg.consumption);
+                    const entry = monthMap.get(ym);
+                    entry.km += seg.km;
+                    entry.kwh += seg.kwh;
+                    if (seg.consumption > 0) entry.consList.push(seg.consumption);
                 });
 
-                const cursor = new Date(startMonday.getTime());
-                let idx = 0;
-                while (cursor <= lastMonday && idx < 16) {
-                    const monIso = toIso(cursor);
-                    const sunday = new Date(cursor.getTime());
-                    sunday.setDate(sunday.getDate() + 6);
-
-                    const endMonthKey = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}`;
-                    const endMonthName = monthNamesFull[sunday.getMonth()];
-                    const bucket = weekBuckets.get(monIso);
-
-                    let val = null;
-                    if (bucket) {
-                        if (bucket.km > 0 && bucket.kwh > 0) {
-                            val = Number(((bucket.kwh / bucket.km) * 100).toFixed(1));
-                        } else if (bucket.consValues.length) {
-                            val = Number((bucket.consValues.reduce((a, b) => a + b, 0) / bucket.consValues.length).toFixed(1));
-                        }
-                    }
-
-                    weeklyPoints.push({
-                        id: `wk_${monIso}`,
-                        label: formatShortDay(sunday),
-                        range: `Lun ${formatShortDay(cursor)} – Dom ${formatShortDay(sunday)}`,
-                        monthKey: endMonthKey,
-                        monthName: endMonthName,
-                        value: val
+                const monthlyStats = Array.from(monthMap.values())
+                    .sort((a, b) => a.key.localeCompare(b.key))
+                    .slice(-4)
+                    .map((m) => {
+                        const avgCons = m.km > 0 && m.kwh > 0
+                            ? Number(((m.kwh / m.km) * 100).toFixed(1))
+                            : m.consList.length
+                                ? Number((m.consList.reduce((a, b) => a + b, 0) / m.consList.length).toFixed(1))
+                                : fallbackCons;
+                        return {
+                            key: m.key,
+                            name: m.name,
+                            shortName: m.shortName,
+                            km: Math.round(m.km),
+                            avgConsumption: avgCons
+                        };
                     });
 
-                    cursor.setDate(cursor.getDate() + 7);
-                    idx++;
+                const getMondayDate = (dateStr) => {
+                    const d = new Date(dateStr + 'T12:00:00');
+                    const day = d.getDay();
+                    const diffToMonday = day === 0 ? -6 : 1 - day;
+                    d.setDate(d.getDate() + diffToMonday);
+                    return d;
+                };
+
+                const toIso = (d) => {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
+                };
+
+                const formatShortDay = (d) => `${String(d.getDate()).padStart(2, '0')} ${monthNamesShort[d.getMonth()]}`;
+
+                let weeklyPoints = [];
+                if (segments.length > 0) {
+                    const firstMonday = getMondayDate(segments[0].date);
+                    const lastMonday = getMondayDate(segments[segments.length - 1].date);
+                    const maxStartMonday = new Date(lastMonday.getTime());
+                    maxStartMonday.setDate(maxStartMonday.getDate() - 11 * 7);
+                    const startMonday = firstMonday > maxStartMonday ? firstMonday : maxStartMonday;
+
+                    const weekBuckets = new Map();
+                    segments.forEach((seg) => {
+                        const monIso = toIso(getMondayDate(seg.date));
+                        if (!weekBuckets.has(monIso)) {
+                            weekBuckets.set(monIso, { km: 0, kwh: 0, consValues: [] });
+                        }
+                        const b = weekBuckets.get(monIso);
+                        b.km += seg.km;
+                        b.kwh += seg.kwh;
+                        b.consValues.push(seg.consumption);
+                    });
+
+                    const cursor = new Date(startMonday.getTime());
+                    let idx = 0;
+                    while (cursor <= lastMonday && idx < 16) {
+                        const monIso = toIso(cursor);
+                        const sunday = new Date(cursor.getTime());
+                        sunday.setDate(sunday.getDate() + 6);
+
+                        const endMonthKey = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}`;
+                        const endMonthName = monthNamesFull[sunday.getMonth()];
+                        const bucket = weekBuckets.get(monIso);
+
+                        let val = null;
+                        if (bucket) {
+                            if (bucket.km > 0 && bucket.kwh > 0) {
+                                val = Number(((bucket.kwh / bucket.km) * 100).toFixed(1));
+                            } else if (bucket.consValues.length) {
+                                val = Number((bucket.consValues.reduce((a, b) => a + b, 0) / bucket.consValues.length).toFixed(1));
+                            }
+                        }
+
+                        weeklyPoints.push({
+                            id: `wk_${monIso}`,
+                            label: formatShortDay(sunday),
+                            range: `Lun ${formatShortDay(cursor)} – Dom ${formatShortDay(sunday)}`,
+                            monthKey: endMonthKey,
+                            monthName: endMonthName,
+                            value: val
+                        });
+
+                        cursor.setDate(cursor.getDate() + 7);
+                        idx++;
+                    }
                 }
+
+                const biweeklyPoints = [];
+                for (let i = 0; i < weeklyPoints.length; i += 2) {
+                    const w1 = weeklyPoints[i];
+                    const w2 = weeklyPoints[i + 1] || w1;
+                    const vals = [w1.value, w2 !== w1 ? w2.value : null].filter((v) => v !== null);
+                    const avgVal = vals.length
+                        ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
+                        : null;
+
+                    biweeklyPoints.push({
+                        id: `bw_${w1.id}`,
+                        label: w2.label,
+                        range: `${w1.range.split(' – ')[0]} – ${w2.range.split(' – ')[1]}`,
+                        monthKey: w2.monthKey,
+                        monthName: w2.monthName,
+                        value: avgVal
+                    });
+                }
+
+                const chargeIntervals = [];
+                for (let i = 1; i < sortedCharges.length; i++) {
+                    const prev = Number(sortedCharges[i - 1].odometer);
+                    const curr = Number(sortedCharges[i].odometer);
+                    if (prev > 0 && curr > prev && (curr - prev) < 3000) {
+                        chargeIntervals.push({
+                            date: sortedCharges[i].date.slice(5),
+                            km: curr - prev
+                        });
+                    }
+                }
+
+                return { monthlyStats, weeklyPoints, biweeklyPoints, chargeIntervals: chargeIntervals.slice(-6) };
             }
 
-            // 3. Agrupación cada 2 semanas
-            const biweeklyPoints = [];
-            for (let i = 0; i < weeklyPoints.length; i += 2) {
-                const w1 = weeklyPoints[i];
-                const w2 = weeklyPoints[i + 1] || w1;
-                const vals = [w1.value, w2 !== w1 ? w2.value : null].filter((v) => v !== null);
-                const avgVal = vals.length
-                    ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
-                    : null;
+            window.setConsumptionChartMode = function (mode) {
+                appState.consumptionChartMode = mode === 'biweek' ? 'biweek' : 'week';
+                appState.selectedConsumptionPointId = null;
 
-                biweeklyPoints.push({
-                    id: `bw_${w1.id}`,
-                    label: w2.label,
-                    range: `${w1.range.split(' – ')[0]} – ${w2.range.split(' – ')[1]}`,
-                    monthKey: w2.monthKey,
-                    monthName: w2.monthName,
-                    value: avgVal
-                });
-            }
+                const titleEl = document.getElementById('consumption-chart-title');
+                const btnWeek = document.getElementById('cons-mode-week');
+                const btnBiweek = document.getElementById('cons-mode-biweek');
 
-            return {
-                monthlyStats,
-                weeklyPoints,
-                biweeklyPoints
+                if (titleEl) {
+                    titleEl.textContent = appState.consumptionChartMode === 'week' ? 'Consumo por semana' : 'Consumo cada 2 semanas';
+                }
+                if (btnWeek && btnBiweek) {
+                    if (appState.consumptionChartMode === 'week') {
+                        btnWeek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition';
+                        btnBiweek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white transition';
+                    } else {
+                        btnBiweek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition';
+                        btnWeek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white transition';
+                    }
+                }
+
+                const rangeEl = document.getElementById('cons-detail-range');
+                const monthEl = document.getElementById('cons-detail-month');
+                const valEl = document.getElementById('cons-detail-value');
+                if (rangeEl) rangeEl.textContent = 'Toca un punto del gráfico';
+                if (monthEl) {
+                    monthEl.classList.add('hidden');
+                    monthEl.textContent = '';
+                }
+                if (valEl) {
+                    valEl.className = 'font-mono font-bold text-emerald-300 shrink-0';
+                    valEl.textContent = 'Último fijo';
+                }
+
+                renderChartsTab();
             };
-        }
 
-        function renderWeeklyAndMonthlyCharts() {
-            const weeklySvg = document.getElementById('weekly-consumption-svg');
-            const cardsEl = document.getElementById('monthly-summary-cards');
-            const kmMonthSvg = document.getElementById('km-by-month-svg');
-            if (!weeklySvg || !cardsEl || !kmMonthSvg) return;
+            function showConsumptionPointDetail(item) {
+                appState.selectedConsumptionPointId = item.id;
+                const rangeEl = document.getElementById('cons-detail-range');
+                const monthEl = document.getElementById('cons-detail-month');
+                const valEl = document.getElementById('cons-detail-value');
 
-            const { monthlyStats, weeklyPoints, biweeklyPoints } = buildAnalyticsDatasets();
-            const dataset = appState.consumptionChartMode === 'week' ? weeklyPoints : biweeklyPoints;
+                if (rangeEl) rangeEl.textContent = item.range;
+                if (monthEl) {
+                    monthEl.textContent = item.monthName;
+                    monthEl.classList.remove('hidden');
+                }
+                if (valEl) {
+                    if (item.value === null) {
+                        valEl.className = 'font-mono font-bold text-rose-300 shrink-0';
+                        valEl.textContent = 'sin datos';
+                    } else {
+                        valEl.className = 'font-mono font-bold text-emerald-300 shrink-0';
+                        valEl.textContent = `${formatCommaNum(item.value)} kWh/100`;
+                    }
+                }
+                renderChartsTab();
+            }
 
-            // Renderizar recuadros laterales por mes (fijos, no cambian entre Semana / 2 semanas)
-            if (!monthlyStats.length) {
-                cardsEl.innerHTML = `<div class="col-span-2 sm:col-span-1 rounded-xl bg-slate-950/80 border border-slate-800 p-3 text-center text-[11px] text-slate-400">Registra cargas para ver el resumen por mes.</div>`;
-            } else {
-                cardsEl.innerHTML = monthlyStats.slice(-3).reverse().map((m) => `
-                    <div class="rounded-xl bg-slate-950/90 border border-slate-800 p-2.5 flex flex-col justify-between gap-1.5">
-                        <div class="text-xs font-bold text-white">${m.name}</div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <div class="rounded-lg bg-slate-900/90 px-2 py-1.5 border border-slate-800/80">
-                                <div class="text-[9px] text-slate-400">Media</div>
-                                <div class="text-xs font-mono font-bold text-amber-300">${formatCommaNum(m.avgConsumption)}</div>
-                            </div>
-                            <div class="rounded-lg bg-slate-900/90 px-2 py-1.5 border border-slate-800/80">
-                                <div class="text-[9px] text-slate-400">Km</div>
-                                <div class="text-xs font-mono font-bold text-sky-300">${m.km.toLocaleString('es-ES')}</div>
+            function renderChartsTab() {
+                const weeklySvg = document.getElementById('weekly-consumption-svg');
+                const cardsEl = document.getElementById('monthly-summary-cards');
+                const kmMonthSvg = document.getElementById('km-by-month-svg');
+                const kmChargesSvg = document.getElementById('km-between-charges-svg');
+                const kmChargesBadge = document.getElementById('km-charges-avg-badge');
+                if (!weeklySvg || !cardsEl || !kmMonthSvg || !kmChargesSvg) return;
+
+                const { monthlyStats, weeklyPoints, biweeklyPoints, chargeIntervals } = buildAnalyticsDatasets();
+                const dataset = appState.consumptionChartMode === 'week' ? weeklyPoints : biweeklyPoints;
+
+                // Recuadros laterales por mes (sin etiqueta de "Mes natural")
+                if (!monthlyStats.length) {
+                    cardsEl.innerHTML = `<div class="rounded-xl bg-slate-950/80 border border-slate-800 p-3 text-center text-[11px] text-slate-400">Sin datos mensuales aún.</div>`;
+                } else {
+                    cardsEl.innerHTML = monthlyStats.slice(-3).reverse().map((m) => `
+                        <div class="rounded-xl bg-slate-950/90 border border-slate-800 p-2.5 flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white">${m.name}</span>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="text-amber-300 font-bold">${formatCommaNum(m.avgConsumption)} <span class="text-[10px] text-slate-400 font-normal">kWh/100</span></span>
+                                <span class="text-slate-600">·</span>
+                                <span class="text-sky-300 font-bold">${m.km.toLocaleString('es-ES')} km</span>
                             </div>
                         </div>
-                    </div>
-                `).join('');
-            }
-
-            // Renderizar Gráfico 1: Consumo por semana / 2 semanas
-            weeklySvg.innerHTML = '';
-            if (!dataset.length) {
-                const emptyTxt = createSvgNode('text', {
-                    x: 270,
-                    y: 142,
-                    'text-anchor': 'middle',
-                    fill: '#64748b',
-                    'font-size': 12
-                });
-                emptyTxt.textContent = 'Sin cargas suficientes para mostrar semanas';
-                weeklySvg.appendChild(emptyTxt);
-            } else {
-                const width = 540;
-                const height = 285;
-                const padLeft = 40;
-                const padRight = 28;
-                const padTop = 28;
-                const padBottom = 46;
-                const plotW = width - padLeft - padRight;
-                const plotH = height - padTop - padBottom;
-
-                const validVals = dataset.map((d) => d.value).filter((v) => v !== null);
-                const monthAvgs = monthlyStats.map((m) => m.avgConsumption);
-                const allVals = [...validVals, ...monthAvgs, 15, 21];
-                const minY = Math.max(8, Math.floor(Math.min(...allVals) - 1.5));
-                const maxY = Math.ceil(Math.max(...allVals) + 1.5);
-
-                const yForVal = (v) => padTop + plotH - ((v - minY) / Math.max(1, maxY - minY)) * plotH;
-                const stepX = dataset.length > 1 ? plotW / (dataset.length - 1) : plotW / 2;
-                const xForIdx = (i) => dataset.length > 1 ? padLeft + stepX * i : padLeft + plotW / 2;
-
-                // Rejilla Y
-                const tickCount = 4;
-                for (let t = 0; t <= tickCount; t++) {
-                    const val = minY + ((maxY - minY) / tickCount) * t;
-                    const y = yForVal(val);
-                    weeklySvg.appendChild(createSvgNode('line', {
-                        x1: padLeft,
-                        y1: y,
-                        x2: width - padRight,
-                        y2: y,
-                        stroke: '#1e293b',
-                        'stroke-width': 1
-                    }));
-
-                    const lbl = createSvgNode('text', {
-                        x: padLeft - 7,
-                        y: y + 3.5,
-                        'text-anchor': 'end',
-                        fill: '#94a3b8',
-                        'font-size': 10
-                    });
-                    lbl.textContent = formatCommaNum(val, 0);
-                    weeklySvg.appendChild(lbl);
+                    `).join('');
                 }
 
-                // Agrupación por mes para divisores verticales y media mensual naranja
-                const monthGroups = [];
-                dataset.forEach((item, idx) => {
-                    const lastGrp = monthGroups[monthGroups.length - 1];
-                    if (!lastGrp || lastGrp.monthKey !== item.monthKey) {
-                        monthGroups.push({
-                            monthKey: item.monthKey,
-                            monthName: item.monthName,
-                            startIdx: idx,
-                            endIdx: idx
-                        });
-                    } else {
-                        lastGrp.endIdx = idx;
-                    }
-                });
+                // Gráfico 1: Consumo semanal / quincenal
+                weeklySvg.innerHTML = '';
+                if (!dataset.length) {
+                    const txt = createSvgNode('text', { x: 270, y: 135, 'text-anchor': 'middle', fill: '#64748b', 'font-size': 12 });
+                    txt.textContent = 'Sin datos suficientes';
+                    weeklySvg.appendChild(txt);
+                } else {
+                    const width = 540;
+                    const height = 270;
+                    const padLeft = 38;
+                    const padRight = 24;
+                    const padTop = 26;
+                    const padBottom = 42;
+                    const plotW = width - padLeft - padRight;
+                    const plotH = height - padTop - padBottom;
 
-                monthGroups.forEach((grp, gIdx) => {
-                    const startX = grp.startIdx === 0 ? padLeft : (xForIdx(grp.startIdx - 1) + xForIdx(grp.startIdx)) / 2;
-                    const endX = grp.endIdx === dataset.length - 1 ? width - padRight : (xForIdx(grp.endIdx) + xForIdx(grp.endIdx + 1)) / 2;
+                    const validVals = dataset.map((d) => d.value).filter((v) => v !== null);
+                    const monthAvgs = monthlyStats.map((m) => m.avgConsumption);
+                    const allVals = [...validVals, ...monthAvgs, 15, 21];
+                    const minY = Math.max(8, Math.floor(Math.min(...allVals) - 1.5));
+                    const maxY = Math.ceil(Math.max(...allVals) + 1.5);
 
-                    if (gIdx > 0) {
+                    const yForVal = (v) => padTop + plotH - ((v - minY) / Math.max(1, maxY - minY)) * plotH;
+                    const stepX = dataset.length > 1 ? plotW / (dataset.length - 1) : plotW / 2;
+                    const xForIdx = (i) => dataset.length > 1 ? padLeft + stepX * i : padLeft + plotW / 2;
+
+                    for (let t = 0; t <= 4; t++) {
+                        const val = minY + ((maxY - minY) / 4) * t;
+                        const y = yForVal(val);
                         weeklySvg.appendChild(createSvgNode('line', {
-                            x1: startX,
-                            y1: padTop - 6,
-                            x2: startX,
-                            y2: padTop + plotH,
-                            stroke: '#64748b',
-                            'stroke-width': 1.2,
-                            'stroke-dasharray': '4 4'
+                            x1: padLeft, y1: y, x2: width - padRight, y2: y, stroke: '#1e293b', 'stroke-width': 1
                         }));
-                    }
-
-                    const mHdr = createSvgNode('text', {
-                        x: (startX + endX) / 2,
-                        y: 14,
-                        'text-anchor': 'middle',
-                        fill: '#94a3b8',
-                        'font-size': 10,
-                        'font-weight': 700
-                    });
-                    mHdr.textContent = grp.monthName;
-                    weeklySvg.appendChild(mHdr);
-
-                    const mStat = monthlyStats.find((m) => m.key === grp.monthKey);
-                    if (mStat) {
-                        const avgY = yForVal(mStat.avgConsumption);
-                        weeklySvg.appendChild(createSvgNode('line', {
-                            x1: startX + 3,
-                            y1: avgY,
-                            x2: endX - 3,
-                            y2: avgY,
-                            stroke: '#fbbf24',
-                            'stroke-width': 1.8,
-                            'stroke-dasharray': '5 4'
-                        }));
-                    }
-                });
-
-                // Línea continua uniendo puntos válidos (saltando huecos «sin datos»)
-                const validPts = [];
-                dataset.forEach((item, idx) => {
-                    if (item.value !== null) {
-                        validPts.push({ x: xForIdx(idx), y: yForVal(item.value), item, idx });
-                    }
-                });
-
-                if (validPts.length > 1) {
-                    const d = validPts
-                        .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-                        .join(' ');
-                    weeklySvg.appendChild(createSvgNode('path', {
-                        d,
-                        fill: 'none',
-                        stroke: '#34d399',
-                        'stroke-width': 2.5,
-                        'stroke-linecap': 'round',
-                        'stroke-linejoin': 'round'
-                    }));
-                }
-
-                // Determinar índice del último punto válido para mostrar su valor fijo
-                let lastValidIdx = -1;
-                for (let i = dataset.length - 1; i >= 0; i--) {
-                    if (dataset[i].value !== null) {
-                        lastValidIdx = i;
-                        break;
-                    }
-                }
-
-                dataset.forEach((item, idx) => {
-                    const cx = xForIdx(idx);
-                    const isSelected = appState.selectedConsumptionPointId === item.id;
-                    const isLastValid = idx === lastValidIdx;
-
-                    // Etiqueta del eje X (mostrar todas si <= 7 puntos, o alternas si hay muchas semanas)
-                    if (dataset.length <= 7 || idx % 2 === 0 || idx === dataset.length - 1) {
-                        const xLbl = createSvgNode('text', {
-                            x: cx,
-                            y: padTop + plotH + 18,
-                            'text-anchor': 'middle',
-                            fill: isSelected ? '#ffffff' : '#94a3b8',
-                            'font-size': 9.5,
-                            'font-weight': isSelected ? 700 : 400
+                        const lbl = createSvgNode('text', {
+                            x: padLeft - 6, y: y + 3.5, 'text-anchor': 'end', fill: '#94a3b8', 'font-size': 10
                         });
-                        xLbl.textContent = item.label;
-                        weeklySvg.appendChild(xLbl);
+                        lbl.textContent = formatCommaNum(val, 0);
+                        weeklySvg.appendChild(lbl);
                     }
 
-                    const hitGroup = createSvgNode('g', {
-                        class: 'chart-point-hit' + (isSelected ? ' is-selected' : '')
+                    const monthGroups = [];
+                    dataset.forEach((item, idx) => {
+                        const lastGrp = monthGroups[monthGroups.length - 1];
+                        if (!lastGrp || lastGrp.monthKey !== item.monthKey) {
+                            monthGroups.push({ monthKey: item.monthKey, monthName: item.monthName, startIdx: idx, endIdx: idx });
+                        } else {
+                            lastGrp.endIdx = idx;
+                        }
                     });
 
-                    if (item.value === null) {
-                        const nullY = padTop + plotH - 14;
-                        hitGroup.appendChild(createSvgNode('line', {
-                            x1: cx,
-                            y1: padTop + 8,
-                            x2: cx,
-                            y2: padTop + plotH,
-                            stroke: '#fb7185',
-                            'stroke-width': 1,
-                            'stroke-dasharray': '2 3',
-                            opacity: 0.55
-                        }));
-                        hitGroup.appendChild(createSvgNode('circle', {
-                            cx,
-                            cy: nullY,
-                            r: isSelected ? 6 : 4.5,
-                            fill: '#1e1b2e',
-                            stroke: '#fb7185',
-                            'stroke-width': 2,
-                            class: 'chart-point-circle'
-                        }));
-                        const noDataLbl = createSvgNode('text', {
-                            x: cx,
-                            y: nullY - 9,
-                            'text-anchor': 'middle',
-                            fill: '#fda4af',
-                            'font-size': 9,
-                            'font-weight': 600
-                        });
-                        noDataLbl.textContent = 'sin datos';
-                        hitGroup.appendChild(noDataLbl);
-                        hitGroup.appendChild(createSvgNode('circle', { cx, cy: nullY, r: 18, fill: 'transparent' }));
-                    } else {
-                        const cy = yForVal(item.value);
-                        hitGroup.appendChild(createSvgNode('circle', {
-                            cx,
-                            cy,
-                            r: isSelected ? 6.5 : isLastValid ? 5.5 : 4.3,
-                            fill: isSelected ? '#ffffff' : '#10b981',
-                            stroke: isSelected ? '#10b981' : '#022c22',
-                            'stroke-width': 2.2,
-                            class: 'chart-point-circle'
-                        }));
+                    monthGroups.forEach((grp, gIdx) => {
+                        const startX = grp.startIdx === 0 ? padLeft : (xForIdx(grp.startIdx - 1) + xForIdx(grp.startIdx)) / 2;
+                        const endX = grp.endIdx === dataset.length - 1 ? width - padRight : (xForIdx(grp.endIdx) + xForIdx(grp.endIdx + 1)) / 2;
 
-                        if (isLastValid) {
-                            const bw = 38;
-                            const bh = 18;
-                            const bx = Math.min(width - padRight - bw + 6, Math.max(padLeft, cx - bw / 2));
-                            const by = Math.max(padTop - 2, cy - 26);
-
-                            hitGroup.appendChild(createSvgNode('rect', {
-                                x: bx,
-                                y: by,
-                                width: bw,
-                                height: bh,
-                                rx: 5,
-                                fill: '#10b981'
+                        if (gIdx > 0) {
+                            weeklySvg.appendChild(createSvgNode('line', {
+                                x1: startX, y1: padTop - 6, x2: startX, y2: padTop + plotH,
+                                stroke: '#64748b', 'stroke-width': 1.2, 'stroke-dasharray': '4 4'
                             }));
-                            const valText = createSvgNode('text', {
-                                x: bx + bw / 2,
-                                y: by + 12.5,
-                                'text-anchor': 'middle',
-                                fill: '#022c22',
-                                'font-size': 10.5,
-                                'font-weight': 800
-                            });
-                            valText.textContent = formatCommaNum(item.value);
-                            hitGroup.appendChild(valText);
                         }
 
-                        hitGroup.appendChild(createSvgNode('circle', { cx, cy, r: 18, fill: 'transparent' }));
+                        const mHdr = createSvgNode('text', {
+                            x: (startX + endX) / 2, y: 13, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 10, 'font-weight': 700
+                        });
+                        mHdr.textContent = grp.monthName;
+                        weeklySvg.appendChild(mHdr);
+
+                        const mStat = monthlyStats.find((m) => m.key === grp.monthKey);
+                        if (mStat) {
+                            const avgY = yForVal(mStat.avgConsumption);
+                            weeklySvg.appendChild(createSvgNode('line', {
+                                x1: startX + 3, y1: avgY, x2: endX - 3, y2: avgY,
+                                stroke: '#fbbf24', 'stroke-width': 1.8, 'stroke-dasharray': '5 4'
+                            }));
+                        }
+                    });
+
+                    const validPts = [];
+                    dataset.forEach((item, idx) => {
+                        if (item.value !== null) {
+                            validPts.push({ x: xForIdx(idx), y: yForVal(item.value), item });
+                        }
+                    });
+
+                    if (validPts.length > 1) {
+                        const d = validPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+                        weeklySvg.appendChild(createSvgNode('path', {
+                            d, fill: 'none', stroke: '#34d399', 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+                        }));
                     }
 
-                    hitGroup.addEventListener('click', () => showConsumptionPointDetail(item));
-                    weeklySvg.appendChild(hitGroup);
+                    let lastValidIdx = -1;
+                    for (let i = dataset.length - 1; i >= 0; i--) {
+                        if (dataset[i].value !== null) {
+                            lastValidIdx = i;
+                            break;
+                        }
+                    }
+
+                    dataset.forEach((item, idx) => {
+                        const cx = xForIdx(idx);
+                        const isSelected = appState.selectedConsumptionPointId === item.id;
+                        const isLastValid = idx === lastValidIdx;
+
+                        if (dataset.length <= 7 || idx % 2 === 0 || idx === dataset.length - 1) {
+                            const xLbl = createSvgNode('text', {
+                                x: cx, y: padTop + plotH + 17, 'text-anchor': 'middle',
+                                fill: isSelected ? '#ffffff' : '#94a3b8', 'font-size': 9.5, 'font-weight': isSelected ? 700 : 400
+                            });
+                            xLbl.textContent = item.label;
+                            weeklySvg.appendChild(xLbl);
+                        }
+
+                        const hitGroup = createSvgNode('g', { class: 'chart-point-hit' + (isSelected ? ' is-selected' : '') });
+
+                        if (item.value === null) {
+                            const nullY = padTop + plotH - 14;
+                            hitGroup.appendChild(createSvgNode('line', {
+                                x1: cx, y1: padTop + 8, x2: cx, y2: padTop + plotH,
+                                stroke: '#fb7185', 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: 0.55
+                            }));
+                            hitGroup.appendChild(createSvgNode('circle', {
+                                cx, cy: nullY, r: isSelected ? 6 : 4.5,
+                                fill: '#1e1b2e', stroke: '#fb7185', 'stroke-width': 2, class: 'chart-point-circle'
+                            }));
+                            const noDataLbl = createSvgNode('text', {
+                                x: cx, y: nullY - 9, 'text-anchor': 'middle', fill: '#fda4af', 'font-size': 9, 'font-weight': 600
+                            });
+                            noDataLbl.textContent = 'sin datos';
+                            hitGroup.appendChild(noDataLbl);
+                            hitGroup.appendChild(createSvgNode('circle', { cx, cy: nullY, r: 18, fill: 'transparent' }));
+                        } else {
+                            const cy = yForVal(item.value);
+                            hitGroup.appendChild(createSvgNode('circle', {
+                                cx, cy, r: isSelected ? 6.5 : isLastValid ? 5.5 : 4.3,
+                                fill: isSelected ? '#ffffff' : '#10b981', stroke: isSelected ? '#10b981' : '#022c22',
+                                'stroke-width': 2.2, class: 'chart-point-circle'
+                            }));
+
+                            if (isLastValid) {
+                                const bw = 38;
+                                const bh = 18;
+                                const bx = Math.min(width - padRight - bw + 6, Math.max(padLeft, cx - bw / 2));
+                                const by = Math.max(padTop - 2, cy - 26);
+
+                                hitGroup.appendChild(createSvgNode('rect', { x: bx, y: by, width: bw, height: bh, rx: 5, fill: '#10b981' }));
+                                const valText = createSvgNode('text', {
+                                    x: bx + bw / 2, y: by + 12.5, 'text-anchor': 'middle', fill: '#022c22', 'font-size': 10.5, 'font-weight': 800
+                                });
+                                valText.textContent = formatCommaNum(item.value);
+                                hitGroup.appendChild(valText);
+                            }
+
+                            hitGroup.appendChild(createSvgNode('circle', { cx, cy, r: 18, fill: 'transparent' }));
+                        }
+
+                        hitGroup.addEventListener('click', () => showConsumptionPointDetail(item));
+                        weeklySvg.appendChild(hitGroup);
+                    });
+                }
+
+                // Gráfico 2: Km recorridos por mes + línea consumo medio
+                kmMonthSvg.innerHTML = '';
+                if (!monthlyStats.length) {
+                    const txt = createSvgNode('text', { x: 270, y: 122, 'text-anchor': 'middle', fill: '#64748b', 'font-size': 12 });
+                    txt.textContent = 'Sin datos mensuales aún';
+                    kmMonthSvg.appendChild(txt);
+                } else {
+                    const width = 540;
+                    const height = 245;
+                    const padLeft = 46;
+                    const padRight = 42;
+                    const padTop = 24;
+                    const padBottom = 48;
+                    const plotW = width - padLeft - padRight;
+                    const plotH = height - padTop - padBottom;
+
+                    const maxKm = Math.ceil(Math.max(...monthlyStats.map((m) => m.km), 200) / 200) * 200;
+                    const consVals = monthlyStats.map((m) => m.avgConsumption);
+                    const minCons = Math.max(8, Math.floor(Math.min(...consVals, 14) - 1.5));
+                    const maxCons = Math.ceil(Math.max(...consVals, 20) + 1.5);
+
+                    const yForKm = (km) => padTop + plotH - (km / Math.max(1, maxKm)) * plotH;
+                    const yForCons = (c) => padTop + plotH - ((c - minCons) / Math.max(1, maxCons - minCons)) * plotH;
+
+                    for (let i = 0; i <= 3; i++) {
+                        const val = Math.round((maxKm / 3) * i);
+                        const y = yForKm(val);
+                        kmMonthSvg.appendChild(createSvgNode('line', {
+                            x1: padLeft, y1: y, x2: width - padRight, y2: y, stroke: '#1e293b', 'stroke-width': 1
+                        }));
+                        const lbl = createSvgNode('text', {
+                            x: padLeft - 7, y: y + 3.5, 'text-anchor': 'end', fill: '#7dd3fc', 'font-size': 10
+                        });
+                        lbl.textContent = val.toLocaleString('es-ES');
+                        kmMonthSvg.appendChild(lbl);
+                    }
+
+                    for (let i = 0; i <= 3; i++) {
+                        const val = minCons + ((maxCons - minCons) / 3) * i;
+                        const y = yForCons(val);
+                        const lbl = createSvgNode('text', {
+                            x: width - padRight + 7, y: y + 3.5, 'text-anchor': 'start', fill: '#fcd34d', 'font-size': 10
+                        });
+                        lbl.textContent = formatCommaNum(val);
+                        kmMonthSvg.appendChild(lbl);
+                    }
+
+                    const colW = plotW / monthlyStats.length;
+                    const barW = Math.min(56, colW * 0.44);
+                    const linePts = [];
+
+                    monthlyStats.forEach((m, idx) => {
+                        const cx = padLeft + colW * idx + colW / 2;
+                        const topY = yForKm(m.km);
+                        const barH = Math.max(4, padTop + plotH - topY);
+
+                        kmMonthSvg.appendChild(createSvgNode('rect', {
+                            x: cx - barW / 2, y: topY, width: barW, height: barH, rx: 8,
+                            fill: 'rgba(56, 189, 248, 0.22)', stroke: 'rgba(125, 211, 252, 0.55)', 'stroke-width': 1.4
+                        }));
+
+                        const nameLbl = createSvgNode('text', {
+                            x: cx, y: padTop + plotH + 17, 'text-anchor': 'middle', fill: '#f8fafc', 'font-size': 10.5, 'font-weight': 600
+                        });
+                        nameLbl.textContent = m.name;
+                        kmMonthSvg.appendChild(nameLbl);
+
+                        const kmLbl = createSvgNode('text', {
+                            x: cx, y: padTop + plotH + 32, 'text-anchor': 'middle', fill: '#7dd3fc', 'font-size': 10, 'font-weight': 700
+                        });
+                        kmLbl.textContent = `${m.km.toLocaleString('es-ES')} km`;
+                        kmMonthSvg.appendChild(kmLbl);
+
+                        linePts.push({ x: cx, y: yForCons(m.avgConsumption), val: m.avgConsumption });
+                    });
+
+                    if (linePts.length > 1) {
+                        const d = linePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+                        kmMonthSvg.appendChild(createSvgNode('path', {
+                            d, fill: 'none', stroke: '#fbbf24', 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+                        }));
+                    }
+
+                    linePts.forEach((p) => {
+                        kmMonthSvg.appendChild(createSvgNode('circle', {
+                            cx: p.x, cy: p.y, r: 5, fill: '#fbbf24', stroke: '#090d16', 'stroke-width': 2
+                        }));
+                        const valLbl = createSvgNode('text', {
+                            x: p.x, y: Math.max(p.y - 10, padTop + 9), 'text-anchor': 'middle', fill: '#fde68a', 'font-size': 10.5, 'font-weight': 700
+                        });
+                        valLbl.textContent = formatCommaNum(p.val);
+                        kmMonthSvg.appendChild(valLbl);
+                    });
+                }
+
+                // Gráfico 3: Km entre cargas con línea de media
+                kmChargesSvg.innerHTML = '';
+                const intervalItems = chargeIntervals.length ? chargeIntervals : [
+                    { date: '10-04', km: 265 },
+                    { date: '10-11', km: 280 },
+                    { date: '10-25', km: 270 },
+                    { date: '11-01', km: 250 },
+                    { date: '11-08', km: 290 },
+                    { date: '11-15', km: 270 }
+                ];
+                const avgInterval = Math.round(intervalItems.reduce((a, b) => a + b.km, 0) / intervalItems.length);
+                if (kmChargesBadge) kmChargesBadge.textContent = `Media: ${avgInterval} km`;
+
+                const cWidth = 540;
+                const cHeight = 220;
+                const cPadL = 44;
+                const cPadR = 16;
+                const cPadT = 22;
+                const cPadB = 34;
+                const cPlotW = cWidth - cPadL - cPadR;
+                const cPlotH = cHeight - cPadT - cPadB;
+                const maxIntervalKm = Math.ceil(Math.max(...intervalItems.map((x) => x.km), avgInterval, 100) / 100) * 100;
+                const yForInt = (km) => cPadT + cPlotH - (km / maxIntervalKm) * cPlotH;
+
+                [0, 0.5, 1].forEach((f) => {
+                    const v = Math.round(maxIntervalKm * f);
+                    const y = yForInt(v);
+                    kmChargesSvg.appendChild(createSvgNode('line', {
+                        x1: cPadL, y1: y, x2: cWidth - cPadR, y2: y, stroke: '#1e293b', 'stroke-width': 1
+                    }));
+                    const t = createSvgNode('text', {
+                        x: cPadL - 6, y: y + 3.5, 'text-anchor': 'end', fill: '#94a3b8', 'font-size': 9.5
+                    });
+                    t.textContent = `${v}`;
+                    kmChargesSvg.appendChild(t);
                 });
+
+                const iColW = cPlotW / intervalItems.length;
+                const iBarW = Math.min(44, iColW * 0.52);
+                intervalItems.forEach((it, idx) => {
+                    const cx = cPadL + iColW * idx + iColW / 2;
+                    const topY = yForInt(it.km);
+                    const barH = Math.max(4, cPadT + cPlotH - topY);
+
+                    kmChargesSvg.appendChild(createSvgNode('rect', {
+                        x: cx - iBarW / 2, y: topY, width: iBarW, height: barH, rx: 6,
+                        fill: 'rgba(16, 185, 129, 0.25)', stroke: 'rgba(52, 211, 153, 0.7)', 'stroke-width': 1.2
+                    }));
+
+                    const valTxt = createSvgNode('text', {
+                        x: cx, y: Math.max(topY - 5, cPadT + 8), 'text-anchor': 'middle', fill: '#6ee7b7', 'font-size': 9.5, 'font-weight': 700
+                    });
+                    valTxt.textContent = `${it.km}`;
+                    kmChargesSvg.appendChild(valTxt);
+
+                    const lblTxt = createSvgNode('text', {
+                        x: cx, y: cPadT + cPlotH + 16, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 9.5
+                    });
+                    lblTxt.textContent = it.date;
+                    kmChargesSvg.appendChild(lblTxt);
+                });
+
+                const avgY = yForInt(avgInterval);
+                kmChargesSvg.appendChild(createSvgNode('line', {
+                    x1: cPadL, y1: avgY, x2: cWidth - cPadR, y2: avgY,
+                    stroke: '#fbbf24', 'stroke-width': 1.8, 'stroke-dasharray': '5 4'
+                }));
             }
 
-            // Renderizar Gráfico 2: Km recorridos por mes + línea de consumo medio
-            kmMonthSvg.innerHTML = '';
-            if (!monthlyStats.length) {
-                const emptyTxt = createSvgNode('text', {
-                    x: 270,
-                    y: 125,
-                    'text-anchor': 'middle',
-                    fill: '#64748b',
-                    'font-size': 12
-                });
-                emptyTxt.textContent = 'Sin datos mensuales aún';
-                kmMonthSvg.appendChild(emptyTxt);
+            function refreshAllViews() {
+                const s = appState.settings;
+                const totalKwh = appState.charges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+                const totalSpent = appState.charges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+                const evCons = Number(s.evConsumption) || 16.5;
+                const estKm = evCons > 0 ? Math.round((totalKwh / evCons) * 100) : 0;
+                const iceCost = (estKm / 100) * (Number(s.iceLiters) || 6.4) * (Number(s.fuelPrice) || 1.58);
+                const savings = Math.max(0, iceCost - totalSpent);
+                const cost100 = estKm > 0 ? (totalSpent / estKm) * 100 : 0;
+
+                document.getElementById('stat-km-badge').textContent = `${estKm.toLocaleString('es-ES')} km`;
+                document.getElementById('stat-savings').textContent = formatEuro(savings);
+                document.getElementById('stat-spent').textContent = formatEuro(totalSpent);
+                document.getElementById('stat-kwh').textContent = `${totalKwh.toFixed(1).replace('.', ',')} kWh`;
+                document.getElementById('stat-cost-100km').textContent = formatEuro(cost100);
+
+                const budgetCard = document.getElementById('home-budget-card');
+                if (budgetCard) {
+                    if (s.budgetEnabled) {
+                        budgetCard.classList.remove('hidden');
+                        const monthSpent = getCurrentMonthSpent();
+                        const limit = Number(s.budgetLimit) || 80;
+                        const pct = Math.min(100, Math.round((monthSpent / limit) * 100));
+                        document.getElementById('budget-fraction').textContent = `${formatEuro(monthSpent)} / ${formatEuro(limit)}`;
+                        const bar = document.getElementById('budget-bar');
+                        bar.style.width = `${pct}%`;
+                        bar.className = pct >= 100
+                            ? 'h-full rounded-full bg-rose-500 transition-all duration-300'
+                            : pct >= 80
+                                ? 'h-full rounded-full bg-amber-400 transition-all duration-300'
+                                : 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+                        document.getElementById('budget-status-text').textContent = pct >= 100
+                            ? 'Has superado el presupuesto mensual configurado.'
+                            : `Llevas el ${pct}% del límite de este mes.`;
+                    } else {
+                        budgetCard.classList.add('hidden');
+                    }
+                }
+
+                const homeCharges = appState.charges.filter((c) => c.mode === 'home');
+                const publicCharges = appState.charges.filter((c) => c.mode !== 'home');
+                const homeKwh = homeCharges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+                const publicKwh = publicCharges.reduce((a, c) => a + (Number(c.kwh) || 0), 0);
+                const homeCost = homeCharges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+                const publicCost = publicCharges.reduce((a, c) => a + (Number(c.totalCost) || 0), 0);
+
+                const homePct = totalKwh > 0 ? Math.round((homeKwh / totalKwh) * 100) : 50;
+                const publicPct = totalKwh > 0 ? 100 - homePct : 50;
+                document.getElementById('split-ratio-label').textContent = `${homePct}% Casa · ${publicPct}% Público`;
+                document.getElementById('split-bar-home').style.width = `${homePct}%`;
+                document.getElementById('split-bar-public').style.width = `${publicPct}%`;
+                document.getElementById('home-summary-val').textContent = `${formatEuro(homeCost)} · ${homeKwh.toFixed(0)} kWh`;
+                document.getElementById('public-summary-val').textContent = `${formatEuro(publicCost)} · ${publicKwh.toFixed(0)} kWh`;
+
+                const recentEl = document.getElementById('recent-charges-list');
+                if (recentEl) {
+                    const top3 = appState.charges.slice(0, 3);
+                    recentEl.innerHTML = top3.length
+                        ? top3.map((c) => renderChargeCard(c, false)).join('')
+                        : `<p class="text-xs text-slate-400">Aún no hay cargas.</p>`;
+                }
+
+                renderHomeMonthlyChart();
+                renderHistoryList();
+                renderChartsTab();
+                safeIcons();
+            }
+
+            function syncSettingsToUI() {
+                const s = appState.settings;
+                document.title = s.appName || 'Mi Coche EV';
+                document.getElementById('header-app-name').textContent = s.appName || 'Mi Coche EV';
+                document.getElementById('header-car-name').textContent = s.carName || 'Mi EV';
+                document.getElementById('header-car-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
+                document.getElementById('car-preview-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
+
+                document.getElementById('setting-app-name').value = s.appName;
+                document.getElementById('setting-car-name').value = s.carName;
+                document.getElementById('setting-battery-kwh').value = s.batteryKwh;
+                document.getElementById('setting-ev-consumption').value = s.evConsumption;
+                document.getElementById('setting-budget-enabled').checked = Boolean(s.budgetEnabled);
+                document.getElementById('setting-budget-limit').value = s.budgetLimit;
+                document.getElementById('setting-budget-amount-wrap').classList.toggle('hidden', !s.budgetEnabled);
+
+                document.getElementById('setting-rate-fixed').value = s.rateFixed;
+                document.getElementById('setting-rate-valle').value = s.rateValle;
+                document.getElementById('setting-rate-llano').value = s.rateLlano;
+                document.getElementById('setting-rate-punta').value = s.ratePunta;
+
+                document.getElementById('btn-rate-fixed').textContent = `${Number(s.rateFixed).toFixed(3).replace('.', ',')} €/kWh`;
+                document.getElementById('btn-rate-valle').textContent = `${Number(s.rateValle).toFixed(3).replace('.', ',')} €/kWh`;
+                document.getElementById('btn-rate-llano').textContent = `${Number(s.rateLlano).toFixed(3).replace('.', ',')} €/kWh`;
+                document.getElementById('btn-rate-punta').textContent = `${Number(s.ratePunta).toFixed(3).replace('.', ',')} €/kWh`;
+
+                document.getElementById('setting-ice-liters').value = s.iceLiters;
+                document.getElementById('setting-fuel-price').value = s.fuelPrice;
+            }
+
+            window.saveSettingsFromUI = function () {
+                const s = appState.settings;
+                s.appName = document.getElementById('setting-app-name').value.trim() || 'Mi Coche EV';
+                s.carName = document.getElementById('setting-car-name').value.trim() || 'Mi EV';
+                s.batteryKwh = Number(document.getElementById('setting-battery-kwh').value) || 66;
+                s.evConsumption = Number(document.getElementById('setting-ev-consumption').value) || 16.5;
+                s.budgetEnabled = document.getElementById('setting-budget-enabled').checked;
+                s.budgetLimit = Number(document.getElementById('setting-budget-limit').value) || 80;
+
+                s.rateFixed = Number(document.getElementById('setting-rate-fixed').value) || 0.085;
+                s.rateValle = Number(document.getElementById('setting-rate-valle').value) || 0.078;
+                s.rateLlano = Number(document.getElementById('setting-rate-llano').value) || 0.145;
+                s.ratePunta = Number(document.getElementById('setting-rate-punta').value) || 0.235;
+
+                s.iceLiters = Number(document.getElementById('setting-ice-liters').value) || 6.4;
+                s.fuelPrice = Number(document.getElementById('setting-fuel-price').value) || 1.58;
+
+                persistState();
+                syncSettingsToUI();
+                window.selectHomeTariff(appState.selectedTariff);
+                refreshAllViews();
+            };
+
+            window.triggerCarPhotoInput = function () {
+                document.getElementById('car-photo-file')?.click();
+            };
+
+            window.handleCarPhotoUpload = function (event) {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    appState.settings.carPhoto = e.target.result;
+                    persistState();
+                    syncSettingsToUI();
+                    showToast('Imagen actualizada');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            window.resetCarPhoto = function () {
+                appState.settings.carPhoto = DEFAULT_CAR_PHOTO;
+                persistState();
+                syncSettingsToUI();
+                showToast('Icono restaurado');
+            };
+
+            window.exportChargesCSV = function () {
+                const headers = ['fecha', 'modo', 'tarifa', 'operador', 'lugar', 'kwh', 'precio_kwh', 'total_eur', 'soc_inicio', 'soc_fin', 'duracion_min', 'odometro'];
+                const rows = appState.charges.map((c) => [
+                    c.date, c.mode, c.tariff, `"${c.operator}"`, `"${c.location}"`,
+                    c.kwh, c.pricePerKwh, c.totalCost, c.socStart, c.socEnd, c.durationMin || '', c.odometer || ''
+                ].join(','));
+                const csv = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `cargas_ev_${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+                showToast('CSV exportado');
+            };
+
+            window.importChargesCSV = function (event) {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const lines = String(e.target.result || '').split(/\r?\n/).slice(1).filter(Boolean);
+                    const imported = lines.map((line, idx) => {
+                        const cols = line.split(',');
+                        return {
+                            id: 'imp_' + Date.now() + '_' + idx,
+                            date: cols[0] || new Date().toISOString().slice(0, 10),
+                            mode: cols[1] === 'public' ? 'public' : 'home',
+                            tariff: cols[2] || 'fixed',
+                            operator: (cols[3] || 'Casa').replace(/"/g, ''),
+                            location: (cols[4] || '').replace(/"/g, ''),
+                            kwh: Number(cols[5]) || 0,
+                            pricePerKwh: Number(cols[6]) || 0,
+                            totalCost: Number(cols[7]) || 0,
+                            socStart: Number(cols[8]) || 20,
+                            socEnd: Number(cols[9]) || 80,
+                            durationMin: Number(cols[10]) || null,
+                            odometer: Number(cols[11]) || null
+                        };
+                    }).filter((item) => item.kwh > 0);
+                    if (imported.length) {
+                        appState.charges = [...imported, ...appState.charges];
+                        persistState();
+                        refreshAllViews();
+                        showToast(`${imported.length} cargas importadas`);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            window.restoreDemoData = function () {
+                appState.charges = DEMO_CHARGES.map((item) => ({ ...item }));
+                persistState();
+                refreshAllViews();
+                showToast('Datos de ejemplo restaurados');
+            };
+
+            window.clearAllData = function () {
+                appState.charges = [];
+                persistState();
+                refreshAllViews();
+                showToast('Historial vaciado');
+            };
+
+            function initApp() {
+                loadStateFromStorage();
+                const dateInput = document.getElementById('input-date');
+                if (dateInput && !dateInput.value) {
+                    dateInput.value = new Date().toISOString().slice(0, 10);
+                }
+                syncSettingsToUI();
+                window.setChargeMode('home');
+                window.updateBatteryPreview();
+                refreshAllViews();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
             } else {
-                const width = 540;
-                const height = 250;
-                const padLeft = 46;
-                const padRight = 44;
-                const padTop = 26;
-                const padBottom = 50;
-                const plotW = width - padLeft - padRight;
-                const plotH = height - padTop - padBottom;
-
-                const maxKmRaw = Math.max(...monthlyStats.map((m) => m.km), 200);
-                const maxKm = Math.ceil(maxKmRaw / 200) * 200;
-
-                const consVals = monthlyStats.map((m) => m.avgConsumption);
-                const minCons = Math.max(8, Math.floor(Math.min(...consVals, 14) - 1.5));
-                const maxCons = Math.ceil(Math.max(...consVals, 20) + 1.5);
-
-                const yForKm = (km) => padTop + plotH - (km / Math.max(1, maxKm)) * plotH;
-                const yForCons = (c) => padTop + plotH - ((c - minCons) / Math.max(1, maxCons - minCons)) * plotH;
-
-                // Eje izquierdo (Km)
-                for (let i = 0; i <= 3; i++) {
-                    const val = Math.round((maxKm / 3) * i);
-                    const y = yForKm(val);
-                    kmMonthSvg.appendChild(createSvgNode('line', {
-                        x1: padLeft,
-                        y1: y,
-                        x2: width - padRight,
-                        y2: y,
-                        stroke: '#1e293b',
-                        'stroke-width': 1
-                    }));
-                    const lbl = createSvgNode('text', {
-                        x: padLeft - 7,
-                        y: y + 3.5,
-                        'text-anchor': 'end',
-                        fill: '#7dd3fc',
-                        'font-size': 10
-                    });
-                    lbl.textContent = val.toLocaleString('es-ES');
-                    kmMonthSvg.appendChild(lbl);
-                }
-
-                // Eje derecho (Consumo medio)
-                for (let i = 0; i <= 3; i++) {
-                    const val = minCons + ((maxCons - minCons) / 3) * i;
-                    const y = yForCons(val);
-                    const lbl = createSvgNode('text', {
-                        x: width - padRight + 7,
-                        y: y + 3.5,
-                        'text-anchor': 'start',
-                        fill: '#fcd34d',
-                        'font-size': 10
-                    });
-                    lbl.textContent = formatCommaNum(val);
-                    kmMonthSvg.appendChild(lbl);
-                }
-
-                const colW = plotW / monthlyStats.length;
-                const barW = Math.min(58, colW * 0.44);
-                const linePts = [];
-
-                monthlyStats.forEach((m, idx) => {
-                    const cx = padLeft + colW * idx + colW / 2;
-                    const topY = yForKm(m.km);
-                    const barH = Math.max(4, padTop + plotH - topY);
-
-                    // Barra suave de km
-                    kmMonthSvg.appendChild(createSvgNode('rect', {
-                        x: cx - barW / 2,
-                        y: topY,
-                        width: barW,
-                        height: barH,
-                        rx: 8,
-                        fill: 'rgba(56, 189, 248, 0.22)',
-                        stroke: 'rgba(125, 211, 252, 0.55)',
-                        'stroke-width': 1.4
-                    }));
-
-                    // Nombre del mes
-                    const nameLbl = createSvgNode('text', {
-                        x: cx,
-                        y: padTop + plotH + 18,
-                        'text-anchor': 'middle',
-                        fill: '#f8fafc',
-                        'font-size': 11,
-                        'font-weight': 600
-                    });
-                    nameLbl.textContent = m.name;
-                    kmMonthSvg.appendChild(nameLbl);
-
-                    // Debajo del nombre de cada mes aparecen sus km
-                    const kmLbl = createSvgNode('text', {
-                        x: cx,
-                        y: padTop + plotH + 34,
-                        'text-anchor': 'middle',
-                        fill: '#7dd3fc',
-                        'font-size': 10.5,
-                        'font-weight': 700
-                    });
-                    kmLbl.textContent = `${m.km.toLocaleString('es-ES')} km`;
-                    kmMonthSvg.appendChild(kmLbl);
-
-                    linePts.push({
-                        x: cx,
-                        y: yForCons(m.avgConsumption),
-                        val: m.avgConsumption
-                    });
-                });
-
-                // Línea de consumo medio encima
-                if (linePts.length > 1) {
-                    const d = linePts
-                        .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-                        .join(' ');
-                    kmMonthSvg.appendChild(createSvgNode('path', {
-                        d,
-                        fill: 'none',
-                        stroke: '#fbbf24',
-                        'stroke-width': 2.5,
-                        'stroke-linecap': 'round',
-                        'stroke-linejoin': 'round'
-                    }));
-                }
-
-                // Puntos y valor escrito en cada punto
-                linePts.forEach((p) => {
-                    kmMonthSvg.appendChild(createSvgNode('circle', {
-                        cx: p.x,
-                        cy: p.y,
-                        r: 5,
-                        fill: '#fbbf24',
-                        stroke: '#090d16',
-                        'stroke-width': 2
-                    }));
-
-                    const valY = Math.max(p.y - 10, padTop + 9);
-                    const valLbl = createSvgNode('text', {
-                        x: p.x,
-                        y: valY,
-                        'text-anchor': 'middle',
-                        fill: '#fde68a',
-                        'font-size': 11,
-                        'font-weight': 700
-                    });
-                    valLbl.textContent = formatCommaNum(p.val);
-                    kmMonthSvg.appendChild(valLbl);
-                });
+                initApp();
             }
-        }
-<!-- ... existing code ... -->
-        function downloadSelfAsIndexHtml() {
-            try {
-                const clone = document.documentElement.cloneNode(true);
-                const cleanIds = ['monthly-chart', 'km-interval-chart', 'weekly-consumption-svg', 'km-by-month-svg', 'monthly-summary-cards', 'recent-charges-list', 'full-history-list', 'frequent-stations-list'];
-                cleanIds.forEach(id => {
-                    const el = clone.querySelector('#' + id);
-                    if (el) el.innerHTML = '';
-                });
-<!-- ... existing code ... -->
+        })();
+    </script>
+</body>
+</html>
