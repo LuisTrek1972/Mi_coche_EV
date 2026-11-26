@@ -480,7 +480,7 @@
                     <div class="flex items-center justify-between gap-2">
                         <div>
                             <h2 class="text-xs font-bold uppercase tracking-wider text-white">Km entre cargas</h2>
-                            <p class="text-[11px] text-slate-400">Distancia recorrida entre recargas</p>
+                            <p class="text-[11px] text-slate-400">Distancia recorrida entre recargas reales</p>
                         </div>
                         <span id="km-charges-avg-badge" class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">Media: -- km</span>
                     </div>
@@ -520,22 +520,22 @@
                     <div class="grid grid-cols-1 gap-2.5">
                         <div>
                             <label for="setting-app-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre de la aplicación</label>
-                            <input id="setting-app-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                            <input id="setting-app-name" type="text" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                         <div>
                             <label for="setting-car-name" class="block text-[11px] font-semibold text-slate-400 mb-1">Modelo / Nombre del coche</label>
-                            <input id="setting-car-name" type="text" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                            <input id="setting-car-name" type="text" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label for="setting-battery-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Batería útil (kWh)</label>
-                            <input id="setting-battery-kwh" type="number" step="0.5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                            <input id="setting-battery-kwh" type="number" step="0.5" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                         <div>
                             <label for="setting-ev-consumption" class="block text-[11px] font-semibold text-slate-400 mb-1">Consumo EV (kWh/100)</label>
-                            <input id="setting-ev-consumption" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                            <input id="setting-ev-consumption" type="number" step="0.1" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                         </div>
                     </div>
                 </div>
@@ -550,7 +550,7 @@
                     </label>
                     <div id="setting-budget-amount-wrap" class="hidden pt-1">
                         <label for="setting-budget-limit" class="block text-[11px] font-semibold text-slate-400 mb-1">Límite mensual (€)</label>
-                        <input id="setting-budget-limit" type="number" step="5" min="5" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        <input id="setting-budget-limit" type="number" step="5" min="5" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
                     </div>
                 </div>
 
@@ -559,19 +559,19 @@
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label for="setting-rate-fixed" class="block text-[11px] text-slate-400 mb-1">Precio fijo</label>
-                            <input id="setting-rate-fixed" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-rate-fixed" type="number" step="0.001" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                         <div>
                             <label for="setting-rate-valle" class="block text-[11px] text-slate-400 mb-1">Valle (00-08h)</label>
-                            <input id="setting-rate-valle" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-rate-valle" type="number" step="0.001" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                         <div>
                             <label for="setting-rate-llano" class="block text-[11px] text-slate-400 mb-1">Llano</label>
-                            <input id="setting-rate-llano" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-rate-llano" type="number" step="0.001" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                         <div>
                             <label for="setting-rate-punta" class="block text-[11px] text-slate-400 mb-1">Punta</label>
-                            <input id="setting-rate-punta" type="number" step="0.001" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-rate-punta" type="number" step="0.001" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                     </div>
                 </div>
@@ -581,11 +581,11 @@
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label for="setting-ice-liters" class="block text-[11px] text-slate-400 mb-1">Consumo (L/100 km)</label>
-                            <input id="setting-ice-liters" type="number" step="0.1" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-ice-liters" type="number" step="0.1" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                         <div>
                             <label for="setting-fuel-price" class="block text-[11px] text-slate-400 mb-1">Carburante (€/L)</label>
-                            <input id="setting-fuel-price" type="number" step="0.01" oninput="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
+                            <input id="setting-fuel-price" type="number" step="0.01" onchange="saveSettingsFromUI()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white" />
                         </div>
                     </div>
                 </div>
@@ -594,15 +594,24 @@
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Datos y copia CSV</h2>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" onclick="exportChargesCSV()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1.5">
-                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Exportar CSV
                         </button>
                         <button type="button" onclick="document.getElementById('csv-import-input').click()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-sky-400 flex items-center justify-center gap-1.5">
-                            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar CSV
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Importar CSV
                         </button>
                         <input id="csv-import-input" type="file" accept=".csv" onchange="importChargesCSV(event)" class="hidden" />
                     </div>
-                    <button type="button" onclick="restoreDemoData()" class="w-full py-2 rounded-xl border border-emerald-500/30 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/10">Restaurar datos de ejemplo</button>
-                    <button type="button" onclick="clearAllData()" class="w-full py-2 rounded-xl border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10">Borrar historial</button>
+                    <button type="button" onclick="deleteDemoData()" class="w-full py-2 rounded-xl border border-amber-500/30 text-amber-300 text-xs font-semibold hover:bg-amber-500/10">Borrar datos de ejemplo</button>
+                    <div id="clear-history-wrap" class="space-y-2">
+                        <button id="btn-clear-history-ask" type="button" onclick="askClearHistory()" class="w-full py-2 rounded-xl border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10">Borrar historial</button>
+                        <div id="clear-history-confirm" class="hidden rounded-xl bg-rose-950/50 border border-rose-500/40 p-3 space-y-2">
+                            <p class="text-[11px] font-semibold text-rose-200 text-center">¿De verdad quieres borrar todo el historial?</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="cancelClearHistory()" class="py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-semibold">Cancelar</button>
+                                <button type="button" onclick="clearAllData()" class="py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">Sí, borrar todo</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </section>
@@ -689,6 +698,7 @@
 
             const STORAGE_KEY_CHARGES = 'ev_tracker_es_charges_v3';
             const STORAGE_KEY_SETTINGS = 'ev_tracker_es_settings_v3';
+            const STORAGE_KEY_CLEARED = 'ev_tracker_es_cleared_v3';
 
             const appState = {
                 activeTab: 'home',
@@ -717,8 +727,9 @@
                 return el;
             }
 
-            function formatCommaNum(num, decimals = 1) {
-                return Number(num).toFixed(decimals).replace('.', ',');
+            function formatCommaNum(num, decimals) {
+                const d = typeof decimals === 'number' ? decimals : 1;
+                return Number(num).toFixed(d).replace('.', ',');
             }
 
             function formatEuro(val) {
@@ -732,12 +743,16 @@
                         appState.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(rawSettings) };
                     }
                     const rawCharges = localStorage.getItem(STORAGE_KEY_CHARGES);
-                    if (rawCharges) {
+                    if (rawCharges !== null) {
                         const parsed = JSON.parse(rawCharges);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
+                        if (Array.isArray(parsed)) {
                             appState.charges = parsed;
                             return;
                         }
+                    }
+                    if (localStorage.getItem(STORAGE_KEY_CLEARED) === '1') {
+                        appState.charges = [];
+                        return;
                     }
                 } catch (e) {}
                 appState.charges = DEMO_CHARGES.map((item) => ({ ...item }));
@@ -747,6 +762,7 @@
                 try {
                     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(appState.settings));
                     localStorage.setItem(STORAGE_KEY_CHARGES, JSON.stringify(appState.charges));
+                    localStorage.setItem(STORAGE_KEY_CLEARED, appState.charges.length === 0 ? '1' : '0');
                 } catch (e) {}
             }
 
@@ -1239,7 +1255,7 @@
             }
 
             window.setConsumptionChartMode = function (mode) {
-                appState.consumptionChartMode = mode === 'biweek' ? 'biweek' : 'week';
+                appState.consumptionChartMode = mode;
                 appState.selectedConsumptionPointId = null;
 
                 const titleEl = document.getElementById('consumption-chart-title');
@@ -1247,10 +1263,10 @@
                 const btnBiweek = document.getElementById('cons-mode-biweek');
 
                 if (titleEl) {
-                    titleEl.textContent = appState.consumptionChartMode === 'week' ? 'Consumo por semana' : 'Consumo cada 2 semanas';
+                    titleEl.textContent = mode === 'week' ? 'Consumo por semana' : 'Consumo cada 2 semanas';
                 }
                 if (btnWeek && btnBiweek) {
-                    if (appState.consumptionChartMode === 'week') {
+                    if (mode === 'week') {
                         btnWeek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 text-slate-950 transition';
                         btnBiweek.className = 'px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white transition';
                     } else {
@@ -1580,73 +1596,78 @@
                     });
                 }
 
-                // Gráfico 3: Km entre cargas con línea de media
+                // Gráfico 3: Km entre cargas con línea de media (solo datos reales del historial)
                 kmChargesSvg.innerHTML = '';
-                const intervalItems = chargeIntervals.length ? chargeIntervals : [
-                    { date: '10-04', km: 265 },
-                    { date: '10-11', km: 280 },
-                    { date: '10-25', km: 270 },
-                    { date: '11-01', km: 250 },
-                    { date: '11-08', km: 290 },
-                    { date: '11-15', km: 270 }
-                ];
-                const avgInterval = Math.round(intervalItems.reduce((a, b) => a + b.km, 0) / intervalItems.length);
-                if (kmChargesBadge) kmChargesBadge.textContent = `Media: ${avgInterval} km`;
+                if (!chargeIntervals.length) {
+                    if (kmChargesBadge) kmChargesBadge.textContent = 'Media: -- km';
+                    const emptyTxt = createSvgNode('text', {
+                        x: 270,
+                        y: 112,
+                        'text-anchor': 'middle',
+                        fill: '#94a3b8',
+                        'font-size': 11
+                    });
+                    emptyTxt.textContent = 'Añade cargas con odómetro para ver km entre cargas';
+                    kmChargesSvg.appendChild(emptyTxt);
+                } else {
+                    const avgInterval = Math.round(chargeIntervals.reduce((a, b) => a + b.km, 0) / chargeIntervals.length);
+                    if (kmChargesBadge) kmChargesBadge.textContent = `Media: ${avgInterval} km`;
 
-                const cWidth = 540;
-                const cHeight = 220;
-                const cPadL = 44;
-                const cPadR = 16;
-                const cPadT = 22;
-                const cPadB = 34;
-                const cPlotW = cWidth - cPadL - cPadR;
-                const cPlotH = cHeight - cPadT - cPadB;
-                const maxIntervalKm = Math.ceil(Math.max(...intervalItems.map((x) => x.km), avgInterval, 100) / 100) * 100;
-                const yForInt = (km) => cPadT + cPlotH - (km / maxIntervalKm) * cPlotH;
+                    const cWidth = 540;
+                    const cHeight = 220;
+                    const cPadL = 44;
+                    const cPadR = 16;
+                    const cPadT = 22;
+                    const cPadB = 34;
+                    const cPlotW = cWidth - cPadL - cPadR;
+                    const cPlotH = cHeight - cPadT - cPadB;
+                    const maxIntervalKm = Math.ceil(Math.max(...chargeIntervals.map((x) => x.km), avgInterval, 100) / 100) * 100;
+                    const yForInt = (km) => cPadT + cPlotH - (km / maxIntervalKm) * cPlotH;
 
-                [0, 0.5, 1].forEach((f) => {
-                    const v = Math.round(maxIntervalKm * f);
-                    const y = yForInt(v);
+                    [0, 0.5, 1].forEach((f) => {
+                        const v = Math.round(maxIntervalKm * f);
+                        const y = yForInt(v);
+                        kmChargesSvg.appendChild(createSvgNode('line', {
+                            x1: cPadL, y1: y, x2: cWidth - cPadR, y2: y, stroke: '#1e293b', 'stroke-width': 1
+                        }));
+                        const t = createSvgNode('text', {
+                            x: cPadL - 6, y: y + 3.5, 'text-anchor': 'end', fill: '#94a3b8', 'font-size': 9.5
+                        });
+                        t.textContent = `${v}`;
+                        kmChargesSvg.appendChild(t);
+                    });
+
+                    const iColW = cPlotW / chargeIntervals.length;
+                    const iBarW = Math.min(44, iColW * 0.52);
+                    chargeIntervals.forEach((it, idx) => {
+                        const cx = cPadL + iColW * idx + iColW / 2;
+                        const topY = yForInt(it.km);
+                        const barH = Math.max(4, cPadT + cPlotH - topY);
+
+                        kmChargesSvg.appendChild(createSvgNode('rect', {
+                            x: cx - iBarW / 2, y: topY, width: iBarW, height: barH, rx: 6,
+                            fill: 'rgba(16, 185, 129, 0.25)', stroke: 'rgba(52, 211, 153, 0.7)', 'stroke-width': 1.2
+                        }));
+
+                        const valTxt = createSvgNode('text', {
+                            x: cx, y: Math.max(topY - 5, cPadT + 8), 'text-anchor': 'middle', fill: '#6ee7b7', 'font-size': 9.5, 'font-weight': 700
+                        });
+                        valTxt.textContent = `${it.km}`;
+                        kmChargesSvg.appendChild(valTxt);
+
+                        const lblTxt = createSvgNode('text', {
+                            x: cx, y: cPadT + cPlotH + 16, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 9.5
+                        });
+                        lblTxt.textContent = it.date;
+                        kmChargesSvg.appendChild(lblTxt);
+                    });
+
+                    const avgY = yForInt(avgInterval);
                     kmChargesSvg.appendChild(createSvgNode('line', {
-                        x1: cPadL, y1: y, x2: cWidth - cPadR, y2: y, stroke: '#1e293b', 'stroke-width': 1
+                        x1: cPadL, y1: avgY, x2: cWidth - cPadR, y2: avgY,
+                        stroke: '#fbbf24', 'stroke-width': 1.8, 'stroke-dasharray': '5 4'
                     }));
-                    const t = createSvgNode('text', {
-                        x: cPadL - 6, y: y + 3.5, 'text-anchor': 'end', fill: '#94a3b8', 'font-size': 9.5
-                    });
-                    t.textContent = `${v}`;
-                    kmChargesSvg.appendChild(t);
-                });
-
-                const iColW = cPlotW / intervalItems.length;
-                const iBarW = Math.min(44, iColW * 0.52);
-                intervalItems.forEach((it, idx) => {
-                    const cx = cPadL + iColW * idx + iColW / 2;
-                    const topY = yForInt(it.km);
-                    const barH = Math.max(4, cPadT + cPlotH - topY);
-
-                    kmChargesSvg.appendChild(createSvgNode('rect', {
-                        x: cx - iBarW / 2, y: topY, width: iBarW, height: barH, rx: 6,
-                        fill: 'rgba(16, 185, 129, 0.25)', stroke: 'rgba(52, 211, 153, 0.7)', 'stroke-width': 1.2
-                    }));
-
-                    const valTxt = createSvgNode('text', {
-                        x: cx, y: Math.max(topY - 5, cPadT + 8), 'text-anchor': 'middle', fill: '#6ee7b7', 'font-size': 9.5, 'font-weight': 700
-                    });
-                    valTxt.textContent = `${it.km}`;
-                    kmChargesSvg.appendChild(valTxt);
-
-                    const lblTxt = createSvgNode('text', {
-                        x: cx, y: cPadT + cPlotH + 16, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 9.5
-                    });
-                    lblTxt.textContent = it.date;
-                    kmChargesSvg.appendChild(lblTxt);
-                });
-
-                const avgY = yForInt(avgInterval);
-                kmChargesSvg.appendChild(createSvgNode('line', {
-                    x1: cPadL, y1: avgY, x2: cWidth - cPadR, y2: avgY,
-                    stroke: '#fbbf24', 'stroke-width': 1.8, 'stroke-dasharray': '5 4'
-                }));
+                }
             }
 
             function refreshAllViews() {
@@ -1713,11 +1734,12 @@
 
                 renderHomeMonthlyChart();
                 renderHistoryList();
-                renderChartsTab();
+                if (appState.activeTab === 'stats') renderChartsTab();
                 safeIcons();
             }
 
-            function syncSettingsToUI() {
+            function syncSettingsToUI(options) {
+                const preserveInputs = Boolean(options && options.preserveInputs);
                 const s = appState.settings;
                 document.title = s.appName || 'Mi Coche EV';
                 document.getElementById('header-app-name').textContent = s.appName || 'Mi Coche EV';
@@ -1725,49 +1747,65 @@
                 document.getElementById('header-car-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
                 document.getElementById('car-preview-img').src = s.carPhoto || DEFAULT_CAR_PHOTO;
 
-                document.getElementById('setting-app-name').value = s.appName;
-                document.getElementById('setting-car-name').value = s.carName;
-                document.getElementById('setting-battery-kwh').value = s.batteryKwh;
-                document.getElementById('setting-ev-consumption').value = s.evConsumption;
-                document.getElementById('setting-budget-enabled').checked = Boolean(s.budgetEnabled);
-                document.getElementById('setting-budget-limit').value = s.budgetLimit;
-                document.getElementById('setting-budget-amount-wrap').classList.toggle('hidden', !s.budgetEnabled);
+                if (!preserveInputs) {
+                    document.getElementById('setting-app-name').value = s.appName;
+                    document.getElementById('setting-car-name').value = s.carName;
+                    document.getElementById('setting-battery-kwh').value = s.batteryKwh;
+                    document.getElementById('setting-ev-consumption').value = s.evConsumption;
+                    document.getElementById('setting-budget-limit').value = s.budgetLimit;
+                    document.getElementById('setting-rate-fixed').value = s.rateFixed;
+                    document.getElementById('setting-rate-valle').value = s.rateValle;
+                    document.getElementById('setting-rate-llano').value = s.rateLlano;
+                    document.getElementById('setting-rate-punta').value = s.ratePunta;
+                    document.getElementById('setting-ice-liters').value = s.iceLiters;
+                    document.getElementById('setting-fuel-price').value = s.fuelPrice;
+                }
 
-                document.getElementById('setting-rate-fixed').value = s.rateFixed;
-                document.getElementById('setting-rate-valle').value = s.rateValle;
-                document.getElementById('setting-rate-llano').value = s.rateLlano;
-                document.getElementById('setting-rate-punta').value = s.ratePunta;
+                document.getElementById('setting-budget-enabled').checked = Boolean(s.budgetEnabled);
+                document.getElementById('setting-budget-amount-wrap').classList.toggle('hidden', !s.budgetEnabled);
 
                 document.getElementById('btn-rate-fixed').textContent = `${Number(s.rateFixed).toFixed(3).replace('.', ',')} €/kWh`;
                 document.getElementById('btn-rate-valle').textContent = `${Number(s.rateValle).toFixed(3).replace('.', ',')} €/kWh`;
                 document.getElementById('btn-rate-llano').textContent = `${Number(s.rateLlano).toFixed(3).replace('.', ',')} €/kWh`;
                 document.getElementById('btn-rate-punta').textContent = `${Number(s.ratePunta).toFixed(3).replace('.', ',')} €/kWh`;
-
-                document.getElementById('setting-ice-liters').value = s.iceLiters;
-                document.getElementById('setting-fuel-price').value = s.fuelPrice;
             }
 
             window.saveSettingsFromUI = function () {
                 const s = appState.settings;
-                s.appName = document.getElementById('setting-app-name').value.trim() || 'Mi Coche EV';
-                s.carName = document.getElementById('setting-car-name').value.trim() || 'Mi EV';
-                s.batteryKwh = Number(document.getElementById('setting-battery-kwh').value) || 66;
-                s.evConsumption = Number(document.getElementById('setting-ev-consumption').value) || 16.5;
+                const appNameVal = document.getElementById('setting-app-name').value.trim();
+                const carNameVal = document.getElementById('setting-car-name').value.trim();
+                const batVal = parseFloat(document.getElementById('setting-battery-kwh').value);
+                const evConsVal = parseFloat(document.getElementById('setting-ev-consumption').value);
+                const budLimVal = parseFloat(document.getElementById('setting-budget-limit').value);
+
+                const fixedVal = parseFloat(document.getElementById('setting-rate-fixed').value);
+                const valleVal = parseFloat(document.getElementById('setting-rate-valle').value);
+                const llanoVal = parseFloat(document.getElementById('setting-rate-llano').value);
+                const puntaVal = parseFloat(document.getElementById('setting-rate-punta').value);
+
+                const iceVal = parseFloat(document.getElementById('setting-ice-liters').value);
+                const fuelVal = parseFloat(document.getElementById('setting-fuel-price').value);
+
+                s.appName = appNameVal || 'Mi Coche EV';
+                s.carName = carNameVal || 'Mi EV';
+                if (Number.isFinite(batVal) && batVal > 0) s.batteryKwh = batVal;
+                if (Number.isFinite(evConsVal) && evConsVal > 0) s.evConsumption = evConsVal;
                 s.budgetEnabled = document.getElementById('setting-budget-enabled').checked;
-                s.budgetLimit = Number(document.getElementById('setting-budget-limit').value) || 80;
+                if (Number.isFinite(budLimVal) && budLimVal > 0) s.budgetLimit = budLimVal;
 
-                s.rateFixed = Number(document.getElementById('setting-rate-fixed').value) || 0.085;
-                s.rateValle = Number(document.getElementById('setting-rate-valle').value) || 0.078;
-                s.rateLlano = Number(document.getElementById('setting-rate-llano').value) || 0.145;
-                s.ratePunta = Number(document.getElementById('setting-rate-punta').value) || 0.235;
+                if (Number.isFinite(fixedVal) && fixedVal >= 0) s.rateFixed = fixedVal;
+                if (Number.isFinite(valleVal) && valleVal >= 0) s.rateValle = valleVal;
+                if (Number.isFinite(llanoVal) && llanoVal >= 0) s.rateLlano = llanoVal;
+                if (Number.isFinite(puntaVal) && puntaVal >= 0) s.ratePunta = puntaVal;
 
-                s.iceLiters = Number(document.getElementById('setting-ice-liters').value) || 6.4;
-                s.fuelPrice = Number(document.getElementById('setting-fuel-price').value) || 1.58;
+                if (Number.isFinite(iceVal) && iceVal >= 0) s.iceLiters = iceVal;
+                if (Number.isFinite(fuelVal) && fuelVal >= 0) s.fuelPrice = fuelVal;
 
                 persistState();
-                syncSettingsToUI();
+                syncSettingsToUI({ preserveInputs: true });
                 window.selectHomeTariff(appState.selectedTariff);
                 refreshAllViews();
+                showToast('Ajustes guardados');
             };
 
             window.triggerCarPhotoInput = function () {
@@ -1843,18 +1881,35 @@
                 reader.readAsText(file);
             };
 
-            window.restoreDemoData = function () {
-                appState.charges = DEMO_CHARGES.map((item) => ({ ...item }));
+            window.deleteDemoData = function () {
+                const demoIds = new Set(DEMO_CHARGES.map((d) => d.id));
+                const beforeCount = appState.charges.length;
+                appState.charges = appState.charges.filter((c) => !demoIds.has(c.id));
                 persistState();
                 refreshAllViews();
-                showToast('Datos de ejemplo restaurados');
+                if (beforeCount === appState.charges.length) {
+                    showToast('No había datos de ejemplo');
+                } else {
+                    showToast('Datos de ejemplo borrados');
+                }
+            };
+
+            window.askClearHistory = function () {
+                document.getElementById('btn-clear-history-ask')?.classList.add('hidden');
+                document.getElementById('clear-history-confirm')?.classList.remove('hidden');
+            };
+
+            window.cancelClearHistory = function () {
+                document.getElementById('clear-history-confirm')?.classList.add('hidden');
+                document.getElementById('btn-clear-history-ask')?.classList.remove('hidden');
             };
 
             window.clearAllData = function () {
                 appState.charges = [];
                 persistState();
+                window.cancelClearHistory();
                 refreshAllViews();
-                showToast('Historial vaciado');
+                showToast('Historial borrado');
             };
 
             function initApp() {
