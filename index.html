@@ -92,18 +92,42 @@
         .tab-panel {
             animation: fadeSlideUp 0.2s ease-out;
         }
-        input[type="range"] {
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+                transform: scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-card {
+            animation: fadeInModal 0.16s ease-out;
+        }
+        input[type="range"].soc-slider {
             -webkit-appearance: none;
             appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-runnable-track {
+            background: #1e293b;
             height: 8px;
             border-radius: 999px;
-            background: #1e293b;
+            cursor: pointer;
+            --pct: 50%;
+            --fill-color: #10b981;
+            background-image: linear-gradient(
+                to right,
+                var(--fill-color) 0%,
+                var(--fill-color) var(--pct),
+                #1e293b var(--pct),
+                #1e293b 100%
+            );
         }
-        input[type="range"]::-webkit-slider-thumb {
+        input[type="range"].soc-slider::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 999px;
+            background: transparent;
+        }
+        input[type="range"].soc-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             height: 20px;
@@ -112,6 +136,24 @@
             background: #10b981;
             border: 3px solid #090d16;
             margin-top: -6px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        input[type="range"].soc-slider::-moz-range-track {
+            height: 8px;
+            border-radius: 999px;
+            background: #1e293b;
+        }
+        input[type="range"].soc-slider::-moz-range-progress {
+            height: 8px;
+            border-radius: 999px;
+            background: var(--fill-color);
+        }
+        input[type="range"].soc-slider::-moz-range-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid #090d16;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
         @media (min-width: 640px) {
@@ -278,11 +320,11 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <span class="block text-[10px] text-slate-500 mb-1">Inicio (%)</span>
-                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview()" class="w-full" />
+                                    <input id="input-soc-start" type="range" min="0" max="99" value="20" oninput="updateBatteryPreview()" class="soc-slider w-full" />
                                 </div>
                                 <div>
                                     <span class="block text-[10px] text-slate-500 mb-1">Fin (%)</span>
-                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview()" class="w-full" />
+                                    <input id="input-soc-end" type="range" min="1" max="100" value="80" oninput="updateBatteryPreview()" class="soc-slider w-full" />
                                 </div>
                             </div>
                         </div>
@@ -623,6 +665,97 @@
             <div id="toast-msg" class="px-4 py-2 rounded-full bg-slate-900/95 border border-emerald-500/40 text-xs font-semibold text-emerald-300 shadow-xl whitespace-nowrap"></div>
         </div>
 
+        <!-- Modal de edición de carga del historial -->
+        <div id="edit-charge-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="modal-card w-full max-w-sm rounded-3xl bg-ev-card border border-ev-border p-4 shadow-2xl space-y-3.5 max-h-[88vh] overflow-y-auto no-scrollbar">
+                <div class="flex items-center justify-between border-b border-ev-border/80 pb-2.5">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Editar carga</h3>
+                        <p class="text-[11px] text-slate-400">Corrige cualquier dato y se actualizarán los gráficos</p>
+                    </div>
+                    <button type="button" onclick="closeEditChargeModal()" aria-label="Cerrar edición" class="p-1.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <form id="edit-charge-form" onsubmit="saveEditedCharge(event)" class="space-y-3">
+                    <input id="edit-charge-id" type="hidden" />
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-charge-mode" class="block text-[11px] font-semibold text-slate-400 mb-1">Tipo</label>
+                            <select id="edit-charge-mode" onchange="updateEditChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-2.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                                <option value="home">En casa</option>
+                                <option value="public">Público</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit-charge-date" class="block text-[11px] font-semibold text-slate-400 mb-1">Fecha</label>
+                            <input id="edit-charge-date" type="date" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-2.5 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-charge-kwh" class="block text-[11px] font-semibold text-slate-400 mb-1">Energía (kWh)</label>
+                            <input id="edit-charge-kwh" type="number" step="0.01" min="0.1" required oninput="updateEditChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono font-bold text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="edit-charge-price" class="block text-[11px] font-semibold text-slate-400 mb-1">Precio (€/kWh)</label>
+                            <input id="edit-charge-price" type="number" step="0.001" min="0" required oninput="updateEditChargeTotalPreview()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-charge-soc-start" class="block text-[11px] font-semibold text-slate-400 mb-1">Batería inicio (%)</label>
+                            <input id="edit-charge-soc-start" type="number" min="0" max="99" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="edit-charge-soc-end" class="block text-[11px] font-semibold text-slate-400 mb-1">Batería fin (%)</label>
+                            <input id="edit-charge-soc-end" type="number" min="1" max="100" required class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-charge-operator" class="block text-[11px] font-semibold text-slate-400 mb-1">Operador</label>
+                            <input id="edit-charge-operator" type="text" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="edit-charge-location" class="block text-[11px] font-semibold text-slate-400 mb-1">Lugar / Estación</label>
+                            <input id="edit-charge-location" type="text" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-charge-duration" class="block text-[11px] font-semibold text-slate-400 mb-1">Duración (min)</label>
+                            <input id="edit-charge-duration" type="number" min="1" placeholder="Opcional" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label for="edit-charge-odometer" class="block text-[11px] font-semibold text-slate-400 mb-1">Odómetro (km)</label>
+                            <input id="edit-charge-odometer" type="number" min="0" placeholder="Opcional" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-900 border border-slate-800 px-3.5 py-2.5 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-400">Importe recalculado</span>
+                        <span id="edit-charge-total-preview" class="text-base font-extrabold font-mono text-emerald-400">0,00 €</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button type="button" onclick="closeEditChargeModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-xs font-bold text-slate-950 flex items-center justify-center gap-1.5">
+                            <i data-lucide="check" class="w-4 h-4"></i> Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Barra de navegación inferior -->
         <nav class="sticky bottom-0 z-30 bg-ev-card/95 backdrop-blur-md border-t border-ev-border px-1.5 py-2 grid grid-cols-5 gap-0.5">
             <button type="button" id="nav-btn-home" onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-emerald-400 bg-emerald-500/10">
@@ -884,6 +1017,18 @@
                     end = Math.min(100, start + 1);
                     endEl.value = end;
                 }
+                const startMin = Number(startEl.min) || 0;
+                const startMax = Number(startEl.max) || 99;
+                const startPct = Math.max(0, Math.min(100, ((start - startMin) / Math.max(1, startMax - startMin)) * 100));
+                startEl.style.setProperty('--pct', `${startPct}%`);
+                startEl.style.setProperty('--fill-color', '#38bdf8');
+
+                const endMin = Number(endEl.min) || 1;
+                const endMax = Number(endEl.max) || 100;
+                const endPct = Math.max(0, Math.min(100, ((end - endMin) / Math.max(1, endMax - endMin)) * 100));
+                endEl.style.setProperty('--pct', `${endPct}%`);
+                endEl.style.setProperty('--fill-color', '#10b981');
+
                 document.getElementById('soc-start-label').textContent = `${start}%`;
                 document.getElementById('soc-end-label').textContent = `${end}%`;
                 document.getElementById('soc-gain-badge').textContent = `+${end - start}%`;
@@ -968,10 +1113,110 @@
             };
 
             window.deleteCharge = function (id) {
+                if (document.getElementById('edit-charge-id')?.value === id) {
+                    window.closeEditChargeModal();
+                }
                 appState.charges = appState.charges.filter((c) => c.id !== id);
                 persistState();
                 refreshAllViews();
                 showToast('Carga eliminada');
+            };
+
+            window.updateEditChargeTotalPreview = function () {
+                const kwh = parseFloat(document.getElementById('edit-charge-kwh')?.value) || 0;
+                const price = parseFloat(document.getElementById('edit-charge-price')?.value) || 0;
+                const total = Math.max(0, kwh * price);
+                const previewEl = document.getElementById('edit-charge-total-preview');
+                if (previewEl) previewEl.textContent = formatEuro(total);
+            };
+
+            window.openEditChargeModal = function (id) {
+                const charge = appState.charges.find((c) => c.id === id);
+                if (!charge) return;
+
+                document.getElementById('edit-charge-id').value = charge.id;
+                document.getElementById('edit-charge-mode').value = charge.mode === 'public' ? 'public' : 'home';
+                document.getElementById('edit-charge-date').value = charge.date || new Date().toISOString().slice(0, 10);
+                document.getElementById('edit-charge-kwh').value = Number(charge.kwh) || 0;
+                document.getElementById('edit-charge-price').value = Number(charge.pricePerKwh) || 0;
+                document.getElementById('edit-charge-soc-start').value = Number.isFinite(Number(charge.socStart)) ? Number(charge.socStart) : 20;
+                document.getElementById('edit-charge-soc-end').value = Number.isFinite(Number(charge.socEnd)) ? Number(charge.socEnd) : 80;
+                document.getElementById('edit-charge-operator').value = charge.operator || (charge.mode === 'public' ? '' : 'Casa');
+                document.getElementById('edit-charge-location').value = charge.location || (charge.mode === 'public' ? '' : 'Garaje');
+                document.getElementById('edit-charge-duration').value = charge.durationMin ? Number(charge.durationMin) : '';
+                document.getElementById('edit-charge-odometer').value = charge.odometer ? Number(charge.odometer) : '';
+
+                window.updateEditChargeTotalPreview();
+                document.getElementById('edit-charge-modal')?.classList.remove('hidden');
+                safeIcons();
+            };
+
+            window.closeEditChargeModal = function () {
+                document.getElementById('edit-charge-modal')?.classList.add('hidden');
+            };
+
+            window.saveEditedCharge = function (event) {
+                event.preventDefault();
+                try {
+                    const id = document.getElementById('edit-charge-id').value;
+                    const idx = appState.charges.findIndex((c) => c.id === id);
+                    if (idx === -1) {
+                        window.closeEditChargeModal();
+                        return;
+                    }
+
+                    const mode = document.getElementById('edit-charge-mode').value === 'public' ? 'public' : 'home';
+                    const date = document.getElementById('edit-charge-date').value || new Date().toISOString().slice(0, 10);
+                    const kwh = parseFloat(document.getElementById('edit-charge-kwh').value);
+                    const pricePerKwh = parseFloat(document.getElementById('edit-charge-price').value);
+
+                    if (!Number.isFinite(kwh) || kwh <= 0) {
+                        showToast('Introduce una energía válida');
+                        return;
+                    }
+                    if (!Number.isFinite(pricePerKwh) || pricePerKwh < 0) {
+                        showToast('Introduce un precio válido');
+                        return;
+                    }
+
+                    let socStart = parseInt(document.getElementById('edit-charge-soc-start').value, 10);
+                    let socEnd = parseInt(document.getElementById('edit-charge-soc-end').value, 10);
+                    if (!Number.isFinite(socStart)) socStart = 20;
+                    if (!Number.isFinite(socEnd)) socEnd = 80;
+                    socStart = Math.max(0, Math.min(99, socStart));
+                    socEnd = Math.max(socStart + 1, Math.min(100, socEnd));
+
+                    const rawOperator = document.getElementById('edit-charge-operator').value.trim();
+                    const rawLocation = document.getElementById('edit-charge-location').value.trim();
+                    const durationVal = parseInt(document.getElementById('edit-charge-duration').value, 10);
+                    const odometerVal = parseInt(document.getElementById('edit-charge-odometer').value, 10);
+                    const totalCost = Number((kwh * pricePerKwh).toFixed(2));
+                    const prev = appState.charges[idx];
+
+                    appState.charges[idx] = {
+                        ...prev,
+                        date,
+                        mode,
+                        tariff: mode === 'home' ? (prev.tariff && prev.tariff !== 'dc' ? prev.tariff : 'fixed') : 'dc',
+                        operator: mode === 'home' ? (rawOperator || 'Casa') : (rawOperator || 'Cargador público'),
+                        location: mode === 'home' ? (rawLocation || 'Garaje') : (rawLocation || 'En ruta'),
+                        kwh,
+                        pricePerKwh,
+                        totalCost,
+                        socStart,
+                        socEnd,
+                        durationMin: mode === 'public' && Number.isFinite(durationVal) && durationVal > 0 ? durationVal : null,
+                        odometer: Number.isFinite(odometerVal) && odometerVal > 0 ? odometerVal : null
+                    };
+
+                    appState.charges.sort((a, b) => b.date.localeCompare(a.date) || ((Number(b.odometer) || 0) - (Number(a.odometer) || 0)));
+                    persistState();
+                    window.closeEditChargeModal();
+                    refreshAllViews();
+                    showToast('Carga actualizada');
+                } catch (e) {
+                    showToast('No se pudo guardar el cambio');
+                }
             };
 
             window.setHistoryFilter = function (filter) {
@@ -1005,12 +1250,15 @@
                             </div>
                             <div class="text-xs text-slate-300 mt-1 truncate">${subLabel}</div>
                         </div>
-                        <div class="flex items-center gap-2.5 shrink-0">
-                            <div class="text-right">
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="text-right mr-0.5">
                                 <div class="text-sm font-bold font-mono text-white">${formatEuro(item.totalCost)}</div>
                                 <div class="text-[11px] font-mono text-slate-400">${Number(item.kwh).toFixed(1)} kWh</div>
                             </div>
                             ${allowDelete ? `
+                                <button type="button" onclick="openEditChargeModal('${item.id}')" aria-label="Editar carga" class="p-2 rounded-xl text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
                                 <button type="button" onclick="deleteCharge('${item.id}')" aria-label="Eliminar carga" class="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
